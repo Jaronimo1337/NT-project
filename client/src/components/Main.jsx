@@ -18,14 +18,18 @@ export default function BrokerPortfolio() {
   const sectionsRef = useRef({});
 
   const registerSection = (id, ref) => {
-    sectionsRef.current[id] = ref;
+    if (ref && ref instanceof Element) {
+      sectionsRef.current[id] = ref;
+    }
   };
 
-
   const scrollToSection = (id) => {
-    sectionsRef.current[id]?.scrollIntoView({ behavior: "smooth" });
-    setActiveSection(id);
-    setIsMenuOpen(false);
+    const element = sectionsRef.current[id];
+    if (element && element instanceof Element) {
+      element.scrollIntoView({ behavior: "smooth" });
+      setActiveSection(id);
+      setIsMenuOpen(false);
+    }
   };
 
   // Handle intersection observer for sections
@@ -33,6 +37,7 @@ export default function BrokerPortfolio() {
     const observers = [];
     const options = {
       threshold: 0.6,
+      rootMargin: '-10% 0px -10% 0px'
     };
 
     const callback = (entries) => {
@@ -43,21 +48,35 @@ export default function BrokerPortfolio() {
       });
     };
 
-    Object.values(sectionsRef.current).forEach((section) => {
-      if (section) {
-        const observer = new IntersectionObserver(callback, options);
-        observer.observe(section);
-        observers.push(observer);
-      }
-    });
+    // Add a small delay to ensure all sections are rendered
+    const timeoutId = setTimeout(() => {
+      Object.entries(sectionsRef.current).forEach(([id, section]) => {
+        if (section && section instanceof Element) {
+          try {
+            const observer = new IntersectionObserver(callback, options);
+            observer.observe(section);
+            observers.push(observer);
+          } catch (error) {
+            console.error(`Failed to observe section ${id}:`, error);
+          }
+        }
+      });
+    }, 100);
 
     return () => {
-      observers.forEach((observer) => observer.disconnect());
+      clearTimeout(timeoutId);
+      observers.forEach((observer) => {
+        try {
+          observer.disconnect();
+        } catch (error) {
+          console.error('Error disconnecting observer:', error);
+        }
+      });
     };
   }, []);
 
   return (
-    <div className="font-sans text-gray-800 bg-white w-svw overflow-hidden">
+    <div className="font-sans text-gray-800 bg-white w-screen overflow-hidden">
       <Navigation
         activeSection={activeSection}
         scrollToSection={scrollToSection}
