@@ -30,8 +30,8 @@ const ServicesSection = ({ registerSection, scrollToSection }) => {
     },
     {
       icon: <BarChart size={40} className="text-blue-600" />,
-      title: "Nuoma",
-      description: "Ieškai patikimo nuomininko ar nori išnuomoti turtą be rūpesčių? Padėsiu tinkamai paruošti nuomojamą būstą, pritraukti atsakingus nuomininkus ir pasirūpint",
+      title: "Sklypų paieška ir jų vertinimas",
+      description: "Ieškai tinkamo sklypo namui ar investicijai? Padėsiu įvertinti sklypo formą, paskirtį, privažiavimą ir kitus svarbius aspektus. Naudodamasis duomenų bazėmis ir patirtimi padėsiu priimti geriausią sprendimą.",
       delay: 0.2
     },
     {

@@ -15,7 +15,7 @@ const AboutSection = ({ registerSection, scrollToSection }) => {
             <div className="relative">
               <div className="w-full h-96 rounded-lg overflow-hidden animate-fade-in">
                 <img
-                  src="../../public/broker.jpg"
+                  src="/broker.jpg"
                   alt="Broker in office"
                   className="w-full h-full object-cover"
                 />
@@ -32,7 +32,7 @@ const AboutSection = ({ registerSection, scrollToSection }) => {
             </h2>
             <div className="w-16 h-1 bg-blue-600 mb-8 animate-fade-in-up"></div>
             <p className="text-lg text-gray-700 mb-6 animate-fade-in-up">
-            Esu Lilija Eimontienė – nekilnojamojo turto brokerė, daugiau nei 10 metų dirbanti šioje srityje. Per šį laiką sukaupiau vertingos patirties, ypač namų pardavimo srityje,  padėjau daugybei klientų sėkmingai įgyvendinti savo nekilnojamojo turto planus.            </p>
+            Esu Lilija Eimontienė – nekilnojamojo turto partnerė, daugiau nei 10 metų dirbanti šioje srityje. Per šį laiką sukaupiau vertingos patirties, ypač namų pardavimo srityje,  padėjau daugybei klientų sėkmingai įgyvendinti savo nekilnojamojo turto planus.            </p>
             <p className="text-lg text-gray-700 mb-8 animate-fade-in-up">
             Mano stiprybė – ne tik ilgametė patirtis, bet ir puikus statybos procesų bei pačios statybos išmanymas. Šios žinios man leidžia patarti klientams ne tik pardavimo ar pirkimo klausimais, bet ir įvertinti būsto kokybę, galimus patobulinimus ar rizikas.             </p>
             <div className="grid grid-cols-2 gap-6 mb-8">

@@ -16,7 +16,7 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
             Patikimas kelias į jūsų naujus namus
             </h2>
             <p className="text-lg md:text-xl text-gray-700 mb-8">
-            10+ metų patirties. Profesionalumas. Dėmesys žmogui. Būsto pardavimas, pirkimas ar nuoma – sklandžiai, aiškiai, be streso.
+            10+ metų patirties. Profesionalumas. Dėmesys žmogui. Puikiai išmanau statybų procesus. Būsto pardavimas ir pirkimas – sklandžiai, aiškiai, be streso.
 Dirbu sąžiningai, atsakingai, nuoširdžiai ir visada siekiu geriausio rezultato savo klientui. 
 Ieškote patikimo partnerio nekilnojamojo turto klausimais? Kreipkitės – kartu tikrai rasime geriausią kelią.
 </p>
@@ -37,9 +37,9 @@ Kontaktai
           </div>
         </div>
         <div className="w-full md:w-1/2 flex justify-center md:justify-end">
-          <div className="relative w-64 h-64 md:w-100 md:h-100 rounded-full bg-blue-600 overflow-hidden animate-fade-in">
+          <div className="relative w-64 h-64 md:w-150 md:h-150 rounded-full bg-blue-600 overflow-hidden animate-fade-in">
             <img
-              src="../../public/1.jpg"
+              src="/1.jpg"
               alt="Professional broker portrait"
               className="w-full h-full object-cover"
             />

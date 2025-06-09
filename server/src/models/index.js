@@ -2,7 +2,6 @@ const { sequelize } = require('../config/database');
 
 // Import all models
 const User = require('./User');
-const Project = require('./Project');
 const House = require('./House');
 const HouseImage = require('./HouseImage');
 
@@ -18,9 +17,6 @@ const defineAssociations = () => {
     foreignKey: 'houseId',
     as: 'house'
   });
-
-  // Projects don't have images associations for now
-  // If you add ProjectImage model later, add associations here
 };
 
 // Initialize associations
@@ -29,7 +25,6 @@ defineAssociations();
 module.exports = {
   sequelize,
   User,
-  Project,
   House,
   HouseImage
 };

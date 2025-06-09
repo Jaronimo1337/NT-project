@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const HouseCard = ({ house, delay, index, onClick }) => {
   const firstImage = house.images && house.images.length > 0 ? house.images[0] : null;
   const imageSrc = firstImage 
     ? `${API_URL}${firstImage.imageUrl}`
-    : `/api/placeholder/${600 + index}/${400 + index}`;
+    : `https://picsum.photos/600/400?random=${index}`;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('lt-LT', {
@@ -46,7 +46,7 @@ const HouseCard = ({ house, delay, index, onClick }) => {
         alt={house.title}
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         onError={(e) => {
-          e.target.src = `/api/placeholder/${600 + index}/${400 + index}`;
+          e.target.src = `https://picsum.photos/600/400?random=${index}`;
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6 transition-opacity duration-300">
@@ -74,7 +74,7 @@ const HouseCard = ({ house, delay, index, onClick }) => {
   );
 };
 
-const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
+const PortfolioSection = ({ registerSection, scrollToSection }) => {
   const [houses, setHouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedHouse, setSelectedHouse] = useState(null);
@@ -186,13 +186,21 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
     
     try {
       setFetchAttempted(true);
+      console.log('🔄 Fetching houses from:', `${API_URL}/api/houses`);
+      
       const response = await fetch(`${API_URL}/api/houses`);
       const data = await response.json();
+      
+      console.log('📊 API Response:', data);
+      
       if (data.success) {
         setHouses(data.data);
+        console.log('✅ Houses loaded:', data.data.length);
+      } else {
+        console.error('❌ API returned error:', data.message);
       }
     } catch (error) {
-      console.error('Error fetching houses:', error);
+      console.error('❌ Error fetching houses:', error);
       setFetchAttempted(false); // Allow retry on error
     } finally {
       setLoading(false);
@@ -202,7 +210,7 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
   useEffect(() => {
     fetchHouses();
     if (registerSection) {
-      registerSection('houses', 'Namai');
+      registerSection('portfolio', 'Portfelis');
     }
   }, [registerSection]);
 
@@ -246,12 +254,19 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
   };
 
   return (
-    <section id="houses" className="py-20 px-4 bg-gray-50">
-      <div className="max-w-6xl mx-auto">
+    <section 
+      id="portfolio" 
+      ref={(el) => registerSection('portfolio', el)}
+      className="h-screen w-full snap-start flex items-center bg-gray-50 overflow-y-auto"
+    >
+      <div className="w-full px-4 py-16">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">Mūsų Namai</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Atraskite savo svajonių namus mūsų rūpestingai parinktoje nekilnojamojo turto kolekcijoje
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
+            Parduodami <span className="text-blue-600">Namai</span>
+          </h2>
+          <div className="w-16 h-1 bg-blue-600 mx-auto mb-8 animate-fade-in-up"></div>
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto animate-fade-in-up">
+            Šiuo metu parduodami objektai - 2025 metai
           </p>
         </div>
 
@@ -260,7 +275,7 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
           </div>
         ) : houses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {houses.map((house, index) => (
               <HouseCard
                 key={house.id || index}
@@ -450,10 +465,16 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
                 {/* Call to Action */}
                 <div className="mt-6 pt-4 border-t">
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <button className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    <button 
+                      onClick={() => scrollToSection('contact')}
+                      className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    >
                       Susidomėjau
                     </button>
-                    <button className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                    <button 
+                      onClick={() => scrollToSection('contact')}
+                      className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                    >
                       Susisiekti
                     </button>
                   </div>
@@ -467,7 +488,7 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
       {/* Full Screen Image Modal */}
       {showImageModal && selectedImage && (
         <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4"
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-60 p-4"
           onClick={handleCloseImageModal}
         >
           <div className="relative w-full h-full flex items-center justify-center">
@@ -486,7 +507,7 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
               onClick={(e) => e.stopPropagation()}
               onError={(e) => {
                 console.error('Failed to load image:', selectedImage.imageUrl);
-                e.target.src = '/api/placeholder/800/600';
+                e.target.src = `https://picsum.photos/800/600?random=${currentImageIndex}`;
               }}
             />
             
@@ -538,4 +559,4 @@ const LithuanianHousesPortfolio = ({ registerSection, scrollToSection }) => {
   );
 };
 
-export default LithuanianHousesPortfolio;
+export default PortfolioSection;

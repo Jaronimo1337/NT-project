@@ -1,14 +1,55 @@
 services:
-  client:
-    build: ./client
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: broker_db
+    environment:
+      POSTGRES_DB: broker_portfolio
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
     ports:
-      - "80:80"
-    depends_on:
-      - server
+      - "5433:5432"  # Changed from 5432:5432 to avoid conflict
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # Server (Backend)
   server:
     build: ./server
+    container_name: broker_server
     ports:
-      - "5001:5000"
+      - "3001:3000"  # Changed from 3000:3000 to avoid conflict
     environment:
-      - PORT=5000
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432  # Internal container port (unchanged)
+      - DB_NAME=broker_portfolio
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres123
+      - JWT_SECRET=your_super_secret_jwt_key_here
+      - NODE_ENV=production
+      - ADMIN_EMAIL=admin@example.com
+      - ADMIN_PASSWORD=admin123
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./server/uploads:/app/uploads
+
+  # Client (Frontend)
+  client:
+    build: ./client
+    container_name: broker_client
+    ports:
+      - "8080:80"  # Changed from 80:80 to avoid potential conflicts
+    depends_on:
+      - server
+    environment:
+      - VITE_API_URL=http://localhost:3001  # Updated to match new server port
+
+volumes:
+  postgres_data:

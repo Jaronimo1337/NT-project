@@ -3,8 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-const fs = require('fs'); // Added fs import
-const multer = require('multer');
+const fs = require('fs');
 require('dotenv').config();
 
 const { testConnection, sequelize } = require('./config/database');
@@ -13,18 +12,16 @@ require('./models/index'); // This will set up associations
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const projectRoutes = require('./routes/projects');
 const houseRoutes = require('./routes/houses');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000; // Changed to 3000 to match your frontend
 
 // Create upload directories if they don't exist
 const createUploadDirectories = () => {
   const uploadDirs = [
     './uploads',
-    './uploads/houses',
-    './uploads/projects'
+    './uploads/houses'
   ];
   
   uploadDirs.forEach(dir => {
@@ -71,8 +68,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/houses', houseRoutes); // New houses routes
+app.use('/api/houses', houseRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -139,24 +135,27 @@ const startServer = async () => {
     
     // Create default admin user if it doesn't exist
     const adminExists = await User.findOne({ 
-      where: { email: process.env.ADMIN_EMAIL } 
+      where: { email: process.env.ADMIN_EMAIL || 'admin@example.com' } 
     });
     
-    if (!adminExists && process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+    if (!adminExists) {
       await User.create({
-        email: process.env.ADMIN_EMAIL,
-        password: process.env.ADMIN_PASSWORD,
+        email: process.env.ADMIN_EMAIL || 'admin@example.com',
+        password: process.env.ADMIN_PASSWORD || 'admin123',
         role: 'admin'
       });
       console.log('✅ Default admin user created');
+      console.log('📧 Admin email: admin@example.com');
+      console.log('🔑 Admin password: admin123');
     }
     
     // Start server
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
       console.log(`📁 Upload directories ready`);
+      console.log(`🏠 Houses API: http://localhost:${PORT}/api/houses`);
     });
     
   } catch (error) {

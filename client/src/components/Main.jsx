@@ -7,7 +7,7 @@ import HeroSection from "./Sections/HeroSection";
 import AboutSection from "./Sections/AboutSection";
 import ServicesSection from "./Sections/ServicesSection";
 import PortfolioSection from "./Sections/PortfolioSection";
-import TestimonialsSection from "./Sections/TestimonialSection";
+import SuccessStoriesSection from "./Sections/SuccessStoriesSection";
 import ContactSection from "./Sections/ContactsSection";
 import Footer from "./Footer";
 import AnimationStyles from "./AnimationStyles";
@@ -106,7 +106,7 @@ export default function BrokerPortfolio() {
           registerSection={registerSection}
           scrollToSection={scrollToSection}
         />
-        <TestimonialsSection
+        <SuccessStoriesSection
           registerSection={registerSection}
           scrollToSection={scrollToSection}
         />
