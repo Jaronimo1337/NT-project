@@ -54,8 +54,8 @@ app.use(limiter);
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] // Replace with your frontend domain
-    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'], // Common React dev ports
+    ? ['https://eimonte.lt']
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'], 
   credentials: true
 }));
 
