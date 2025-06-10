@@ -28,9 +28,9 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
   const [status, setStatus] = useState(''); // 'success', 'error', or ''
 
   // EmailJS configuration - Replace with your actual values
-  const EMAIL_SERVICE_ID = 'your_service_id';
-  const EMAIL_TEMPLATE_ID = 'your_template_id'; 
-  const EMAIL_PUBLIC_KEY = 'your_public_key';
+  const EMAIL_SERVICE_ID = import.meta.env.VITE_EMAIL_SERVICE_ID;
+  const EMAIL_TEMPLATE_ID = import.meta.env.VITE_EMAIL_TEMPLATE_ID;
+  const EMAIL_PUBLIC_KEY = import.meta.env.VITE_EMAIL_PUBLIC_KEY;
 
   const handleInputChange = (e) => {
     setFormData({

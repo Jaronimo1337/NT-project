@@ -83,11 +83,11 @@ const Footer = ({ scrollToSection }) => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center text-gray-300">
                 <Phone size={16} className="mr-3 text-blue-400" />
-                <span>+370 XXX XXXXX</span>
+                <span>+370 68528893</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <Mail size={16} className="mr-3 text-blue-400" />
-                <span>lilija.eimontiene@example.com</span>
+                <span>lilija.eimontiene@gmail.com</span>
               </div>
               <div className="flex items-start text-gray-300">
                 <MapPin size={16} className="mr-3 text-blue-400 mt-0.5" />
@@ -146,7 +146,7 @@ const Footer = ({ scrollToSection }) => {
         <div className="border-t border-gray-800 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-400 text-sm">
-              © {currentYear} Lilija Eimontienė. Visos teisės saugomos.
+              © {currentYear}. Visos teisės saugomos. Created by <a href="https://www.linkedin.com/in/jaroslav-pa%C5%A1kel/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-600 transition-colors">Jaroslav Paškel</a>
             </div>
             
             <div className="flex items-center space-x-6 text-xs text-gray-500">
