@@ -4,17 +4,17 @@ import { Home, TrendingUp, Users, Award } from 'lucide-react';
 const AchievementCard = ({ icon, number, label, description, delay }) => {
   return (
     <div
-      className="bg-white text-gray-800 p-6 rounded-lg shadow-lg animate-fade-in-up text-center"
+      className="bg-white text-gray-800 p-3 sm:p-4 rounded-lg shadow-lg animate-fade-in-up text-center"
       style={{ animationDelay: `${delay}s` }}
     >
-      <div className="flex justify-center mb-4">
-        <div className="bg-blue-100 p-3 rounded-full">
-          {icon}
+      <div className="flex justify-center mb-2">
+        <div className="bg-blue-100 p-2 rounded-full">
+          {React.cloneElement(icon, { size: window.innerWidth < 640 ? 18 : 20 })}
         </div>
       </div>
-      <div className="text-3xl font-bold text-blue-600 mb-2">{number}</div>
-      <h3 className="text-lg font-semibold mb-2">{label}</h3>
-      <p className="text-gray-600 text-sm">{description}</p>
+      <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">{number}</div>
+      <h3 className="text-sm sm:text-base font-semibold mb-1">{label}</h3>
+      <p className="text-xs sm:text-sm text-gray-600">{description}</p>
     </div>
   );
 };
@@ -22,16 +22,16 @@ const AchievementCard = ({ icon, number, label, description, delay }) => {
 const ExperienceCard = ({ title, description, years, delay }) => {
   return (
     <div
-      className="bg-white text-gray-800 p-6 rounded-lg shadow-lg animate-fade-in-up"
+      className="bg-white text-gray-800 p-3 sm:p-4 rounded-lg shadow-lg animate-fade-in-up"
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="flex items-start">
-        <div className="bg-blue-600 p-1 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">
+        <div className="bg-blue-600 p-1 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-1 flex-shrink-0">
           {years}
         </div>
         <div>
-          <h3 className="text-lg font-semibold mb-2">{title}</h3>
-          <p className="text-gray-600">{description}</p>
+          <h3 className="text-sm sm:text-base font-semibold mb-1">{title}</h3>
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{description}</p>
         </div>
       </div>
     </div>
@@ -41,28 +41,28 @@ const ExperienceCard = ({ title, description, years, delay }) => {
 const SuccessStoriesSection = ({ registerSection, scrollToSection }) => {
   const achievements = [
     {
-      icon: <Home size={24} className="text-blue-600" />,
+      icon: <Home className="text-blue-600" />,
       number: "100+",
       label: "Sėkmingai parduotų namų",
       description: "Per 10 metų veiklos padėjau šeimoms rasti savo svajonių namus",
       delay: 0
     },
     {
-      icon: <Users size={24} className="text-blue-600" />,
+      icon: <Users className="text-blue-600" />,
       number: "100+",
       label: "Patenkintų klientų",
       description: "Klientai, kurie patikėjo savo nekilnojamojo turto klausimus",
       delay: 0.2
     },
     {
-      icon: <TrendingUp size={24} className="text-blue-600" />,
+      icon: <TrendingUp className="text-blue-600" />,
       number: "98%",
       label: "Klientų pasitenkinimas",
       description: "Klientai rekomenduoja mano paslaugas draugams ir šeimai",
       delay: 0.4
     },
     {
-      icon: <Award size={24} className="text-blue-600" />,
+      icon: <Award className="text-blue-600" />,
       number: "10+",
       label: "Metų patirtis",
       description: "Statybos patirtis ir rinkos išmanymas padeda priimti teisingus sprendimus.",
@@ -89,20 +89,20 @@ const SuccessStoriesSection = ({ registerSection, scrollToSection }) => {
     <section
       id="testimonials"
       ref={(el) => registerSection('testimonials', el)}
-      className="h-screen w-full snap-start flex items-center bg-blue-600 text-white overflow-y-auto"
+      className="h-screen w-full snap-start flex items-center bg-blue-600 text-white overflow-hidden"
     >
-      <div className="w-full px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl mx-auto">
+        <div className="text-center mb-4 sm:mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 animate-fade-in-up">
             Mano <span className="text-blue-200">Patirtis</span>
           </h2>
-          <div className="w-16 h-1 bg-blue-200 mx-auto  animate-fade-in-up"></div>
+          <div className="w-12 sm:w-16 h-1 bg-blue-200 mx-auto animate-fade-in-up"></div>
         </div>
 
         {/* Achievements Section */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-bold text-center mb-8 text-blue-100">Pasiekimai</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl font-bold text-center mb-3 sm:mb-4 text-blue-100">Pasiekimai</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-6xl mx-auto">
             {achievements.map((achievement, index) => (
               <AchievementCard
                 key={index}
@@ -117,9 +117,9 @@ const SuccessStoriesSection = ({ registerSection, scrollToSection }) => {
         </div>
 
         {/* Experience Section */}
-        <div>
-          <h3 className="text-2xl font-bold text-center mb-8 text-blue-100">Specializacijos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl font-bold text-center mb-3 sm:mb-4 text-blue-100">Specializacijos</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 max-w-5xl mx-auto">
             {experiences.map((experience, index) => (
               <ExperienceCard
                 key={index}
@@ -133,10 +133,10 @@ const SuccessStoriesSection = ({ registerSection, scrollToSection }) => {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center mt-12">
+        <div className="text-center">
           <button
             onClick={() => scrollToSection('contact')}
-            className="bg-white text-blue-600 px-8 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors shadow-md"
+            className="bg-white text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors shadow-md text-sm sm:text-base"
           >
             Susisiekite su manimi
           </button>

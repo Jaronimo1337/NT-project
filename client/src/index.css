@@ -1,14 +1,347 @@
 @import "tailwindcss";
-html, body {
+
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100% !important;
   overflow-x: hidden;
-  background-color: #E3FDFD;
+  background-color: #e3fdfd;
+  font-size: 16px;
 }
 
 #root {
-width: 100% !important;
+  width: 100% !important;
   padding: 0 !important;
   margin: 0 !important;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1440px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+  }
+
+  .mobile-text-base {
+    font-size: 1rem !important;
+  }
+
+  .mobile-text-lg {
+    font-size: 1.125rem !important;
+  }
+
+  .mobile-text-xl {
+    font-size: 1.25rem !important;
+  }
+
+  .mobile-text-2xl {
+    font-size: 1.5rem !important;
+  }
+
+  .mobile-text-3xl {
+    font-size: 1.875rem !important;
+  }
+
+  .mobile-h-auto {
+    height: auto !important;
+  }
+
+  .mobile-min-h-screen {
+    min-height: 100vh !important;
+  }
+
+  .mobile-gap-4 {
+    gap: 1rem !important;
+  }
+
+  .mobile-gap-6 {
+    gap: 1.5rem !important;
+  }
+
+  .mobile-p-4 {
+    padding: 1rem !important;
+  }
+
+  .mobile-p-6 {
+    padding: 1.5rem !important;
+  }
+
+  .mobile-mb-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  .mobile-mb-6 {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .mobile-mb-8 {
+    margin-bottom: 2rem !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .laptop-scale {
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+
+  .laptop-text-scale {
+    font-size: 0.9em;
+  }
+
+  .laptop-padding-scale {
+    padding: 0.8em;
+  }
+
+  .laptop-margin-scale {
+    margin: 0.8em;
+  }
+}
+
+.hero-container {
+  padding: 2rem 1rem;
+}
+
+@media (max-width: 640px) {
+  .hero-container {
+    padding: 1rem 0.5rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-container {
+    padding: 3rem 2rem;
+  }
+}
+
+.nav-container {
+  padding: 0 1rem;
+}
+
+@media (max-width: 640px) {
+  .nav-container {
+    padding: 0 0.5rem;
+  }
+
+  .nav-logo {
+    width: 60px !important;
+  }
+
+  .nav-text {
+    font-size: 0.8rem !important;
+  }
+}
+
+.service-card,
+.house-card {
+  padding: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .service-card,
+  .house-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .service-card,
+  .house-card {
+    padding: 1.2rem;
+  }
+}
+
+.section-container {
+  padding: 4rem 1rem;
+}
+
+@media (max-width: 640px) {
+  .section-container {
+    padding: 2rem 0.5rem;
+    min-height: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-container {
+    padding: 3rem 1.5rem;
+  }
+}
+
+.contact-form {
+  width: 100%;
+  max-width: none;
+}
+
+@media (max-width: 640px) {
+  .contact-form {
+    padding: 1rem;
+  }
+
+  .contact-form input,
+  .contact-form textarea,
+  .contact-form select {
+    padding: 0.75rem !important;
+    font-size: 1rem !important;
+  }
+
+  .contact-form button {
+    padding: 0.875rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-container {
+    margin: 0.5rem !important;
+    max-height: 95vh !important;
+  }
+
+  .modal-content {
+    padding: 1rem !important;
+  }
+
+  .modal-image {
+    aspect-ratio: 16/9 !important;
+    max-height: 200px !important;
+  }
+}
+
+.responsive-grid-1 {
+  grid-template-columns: 1fr;
+}
+
+.responsive-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.responsive-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 640px) {
+  .responsive-grid-1,
+  .responsive-grid-2,
+  .responsive-grid-3 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .responsive-grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+.btn-responsive {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .btn-responsive {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .btn-responsive {
+    padding: 0.6rem 1.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+.responsive-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+@media (max-width: 640px) {
+  .hero-image {
+    width: 200px !important;
+    height: 200px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-in-up {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .snap-start {
+    scroll-snap-align: start;
+    min-height: 100vh;
+    height: auto;
+  }
+
+  .h-screen {
+    height: auto !important;
+    min-height: 100vh !important;
+  }
+}
+
+.text-responsive-xs {
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+.text-responsive-sm {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+.text-responsive-base {
+  font-size: clamp(1rem, 3vw, 1.125rem);
+}
+.text-responsive-lg {
+  font-size: clamp(1.125rem, 3.5vw, 1.25rem);
+}
+.text-responsive-xl {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+}
+.text-responsive-2xl {
+  font-size: clamp(1.5rem, 5vw, 1.875rem);
+}
+.text-responsive-3xl {
+  font-size: clamp(1.875rem, 6vw, 2.25rem);
+}
+.text-responsive-4xl {
+  font-size: clamp(2.25rem, 7vw, 3rem);
+}
+
+.padding-responsive {
+  padding: clamp(1rem, 4vw, 2rem);
+}
+.margin-responsive {
+  margin: clamp(0.5rem, 2vw, 1rem);
 }

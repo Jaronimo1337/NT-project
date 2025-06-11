@@ -134,20 +134,23 @@ const startServer = async () => {
     console.log('✅ Database models synchronized');
     
     // Create default admin user if it doesn't exist
-    const adminExists = await User.findOne({ 
-      where: { email: process.env.ADMIN_EMAIL || 'admin@example.com' } 
-    });
-    
-    if (!adminExists) {
-      await User.create({
-        email: process.env.ADMIN_EMAIL || 'admin@example.com',
-        password: process.env.ADMIN_PASSWORD || 'admin123',
-        role: 'admin'
-      });
-      console.log('✅ Default admin user created');
-      console.log('📧 Admin email: admin@example.com');
-      console.log('🔑 Admin password: admin123');
-    }
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+const adminExists = await User.findOne({ 
+  where: { email: adminEmail } 
+});
+
+if (!adminExists) {
+  await User.create({
+    email: adminEmail,
+    password: adminPassword,
+    role: 'admin'
+  });
+  console.log('✅ Default admin user created');
+  console.log('📧 Admin email:', adminEmail);
+  console.log('🔑 Admin password:', adminPassword);
+}
     
     // Start server
     app.listen(PORT, () => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const getApiUrl = () => {
-  return import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  return import.meta.env.VITE_API_URL || 'http://localhost:3001';
 };
 
 const API_URL = getApiUrl();
