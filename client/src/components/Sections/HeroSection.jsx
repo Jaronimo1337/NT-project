@@ -44,7 +44,7 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
           </div>
         </div>
         <div className="w-full lg:w-2/5 flex justify-center lg:justify-end">
-          <div className="hero-image relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 xl:w-80 xl:h-80 rounded-full bg-blue-600 overflow-hidden animate-fade-in shadow-2xl">
+          <div className="hero-image relative w-55 h-55 sm:w-65 sm:h-65 lg:w-80 lg:h-80 xl:w-100 xl:h-100 rounded-full bg-blue-600 overflow-hidden animate-fade-in shadow-2xl">
             <img
               src="/1.jpg"
               alt="Professional broker portrait"
