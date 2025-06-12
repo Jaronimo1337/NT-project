@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const HouseCard = ({ house, delay, index, onClick }) => {
   const firstImage = house.images && house.images.length > 0 ? house.images[0] : null;
-  const imageSrc = firstImage 
-    ? `${API_URL}${firstImage.imageUrl}`
-    : `https://picsum.photos/600/400?random=${index}`;
+  const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return `https://picsum.photos/600/400?random=${index}`;
+  
+  if (imageUrl.startsWith('http')) return imageUrl;
+  
+  if (imageUrl.startsWith('/')) return `${API_URL}${imageUrl}`;
+  
+  return `${API_URL}/uploads/houses/${imageUrl}`;
+};
+
+const imageSrc = firstImage ? getImageUrl(firstImage.imageUrl) : `https://picsum.photos/600/400?random=${index}`;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('lt-LT', {

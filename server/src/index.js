@@ -54,10 +54,13 @@ app.use(limiter);
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://eimonte.lt']
+    ? ['https://eimonte.lt',
+    'https://www.eimonte.lt',
+    'http://localhost:5173']
     : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'], 
   credentials: true
 }));
+
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
