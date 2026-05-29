@@ -287,7 +287,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
     <section 
       id="portfolio" 
       ref={(el) => registerSection('portfolio', el)}
-      className="page-section section-reveal h-screen mobile-min-h-screen mobile-h-auto w-full flex items-center bg-[#f4f7f6] overflow-y-auto lg:overflow-hidden"
+      className="page-section section-reveal min-h-screen w-full flex items-start bg-[#f4f7f6] pb-12 sm:pb-16 lg:pb-20"
     >
       <div className="section-container w-full mobile-padding px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
