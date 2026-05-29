@@ -3,107 +3,58 @@ import React from 'react';
 import { useSiteContent } from '../../context/SiteContentContext';
 import { HERO_IMAGE } from '../../config/assets';
 
-const stats = [
-  { value: '10+', label: 'Metų patirties' },
-  { value: '100+', label: 'Klientų' },
-  { value: '98%', label: 'Rekomenduoja' }
-];
-
 const HeroSection = ({ registerSection, scrollToSection }) => {
   const { t } = useSiteContent();
-
-  const heroContent = (
-  <>
-          <p className="text-[#c4a35a] text-xs font-semibold tracking-[0.18em] uppercase mb-4">
-            {t('contact.location', 'Vilnius ir apylinkės')}
-          </p>
-
-          <h1 className="text-[1.75rem] sm:text-4xl lg:text-[2.75rem] font-bold text-white leading-[1.12] mb-5">
-            {t('hero.title', 'Patikimas kelias į jūsų naujus namus')}
-          </h1>
-
-          <p className="text-base sm:text-lg text-white/85 leading-relaxed mb-8 max-w-lg">
-            {t('hero.paragraph1', '')}
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 mb-10">
-            <button
-              type="button"
-              onClick={() => scrollToSection('portfolio')}
-              className="inline-flex items-center justify-center gap-2 bg-[#c4a35a] hover:bg-[#d4b36a] text-[#1a3335] font-semibold text-sm sm:text-base px-6 py-3 rounded-lg transition-colors"
-            >
-              {t('nav.portfolio', 'Projektai')}
-              <ArrowRight size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollToSection('contact')}
-              className="inline-flex items-center justify-center bg-white/15 hover:bg-white/25 text-white font-semibold text-sm sm:text-base px-6 py-3 rounded-lg border border-white/30 transition-colors"
-            >
-              {t('hero.ctaContact', 'Kontaktai')}
-            </button>
-          </div>
-
-          <div className="flex flex-wrap gap-8 pt-8 border-t border-white/20">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="text-2xl sm:text-3xl font-bold text-[#c4a35a] leading-none">{stat.value}</p>
-                <p className="text-xs sm:text-sm text-white/70 mt-2">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-  </>
-  );
 
   return (
     <section
       id="home"
       ref={(el) => registerSection('home', el)}
-      className="page-section section-reveal relative w-full min-h-screen overflow-hidden"
+      className="page-section section-reveal h-screen mobile-min-h-screen w-full snap-start flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 relative overflow-hidden"
     >
-      {/* Desktop: full-bleed background + side gradient */}
-      <img
-        src={HERO_IMAGE}
-        alt=""
-        className="hidden md:block absolute inset-0 w-full h-full object-cover object-[78%_center] brightness-[1.12] contrast-[1.03] saturate-[1.05]"
-        fetchPriority="high"
-        aria-hidden
-      />
-      <div
-        className="hidden md:block absolute inset-0 pointer-events-none"
-        style={{
-          background: `linear-gradient(to right,
-            rgba(26, 51, 53, 0.92) 0%,
-            rgba(26, 51, 53, 0.88) 30%,
-            rgba(26, 51, 53, 0.72) 38%,
-            rgba(26, 51, 53, 0.52) 46%,
-            rgba(26, 51, 53, 0.32) 54%,
-            rgba(26, 51, 53, 0.16) 62%,
-            rgba(26, 51, 53, 0.06) 70%,
-            transparent 80%
-          )`
-        }}
-        aria-hidden
-      />
-
-      {/* Mobile: photo on top, text below (no text on face) */}
-      <div className="md:hidden flex flex-col min-h-screen pt-16">
-        <div className="relative w-full h-[40vh] min-h-[200px] max-h-[320px] flex-shrink-0">
-          <img
-            src={HERO_IMAGE}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover object-[70%_20%] brightness-[1.08]"
-            fetchPriority="high"
-          />
+      <div className="absolute right-0 bottom-0 w-1/2 h-full bg-blue-600 clip-diagonal opacity-10" />
+      <div className="hero-container w-full mobile-padding px-4 sm:px-6 lg:px-8 xl:px-16 py-8 sm:py-12 lg:py-16 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 xl:gap-12 max-w-7xl mx-auto pt-20">
+        <div className="w-full lg:w-3/5 mb-6 lg:mb-0 z-10 text-center lg:text-left">
+          <div className="animate-fade-in-up">
+            <h1 className="text-responsive-3xl sm:text-responsive-4xl font-bold mb-4 sm:mb-6 leading-tight text-gray-900">
+              {t('hero.title', 'Patikimas kelias į jūsų naujus namus')}
+            </h1>
+            <p className="text-responsive-base sm:text-responsive-lg text-gray-700 mb-6 sm:mb-8 leading-relaxed">
+              {t('hero.paragraph1', '')}
+              <br className="hidden sm:block" />
+              <span className="block mt-2">{t('hero.paragraph2', '')}</span>
+              <br className="hidden sm:block" />
+              <span className="block mt-2">{t('hero.paragraph3', '')}</span>
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto lg:mx-0">
+              <button
+                type="button"
+                onClick={() => scrollToSection('services')}
+                className="btn-responsive bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
+              >
+                {t('hero.ctaServices', 'Paslaugos')}
+                <ArrowRight className="ml-2" size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('contact')}
+                className="btn-responsive bg-white text-blue-600 border border-blue-600 px-6 sm:px-8 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors flex items-center justify-center"
+              >
+                {t('hero.ctaContact', 'Kontaktai')}
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex-1 bg-[#1a3335] px-6 py-8">
-          <div className="w-full max-w-md text-left">{heroContent}</div>
+        <div className="w-full lg:w-2/5 flex justify-center lg:justify-end">
+          <div className="hero-image relative w-56 h-56 sm:w-72 sm:h-72 lg:w-80 lg:h-80 xl:w-96 xl:h-96 rounded-full bg-blue-600 overflow-hidden animate-fade-in shadow-2xl">
+            <img
+              src={HERO_IMAGE}
+              alt="Lilija Eimontienė"
+              className="w-full h-full object-cover object-[95%_center]"
+              fetchPriority="high"
+            />
+          </div>
         </div>
-      </div>
-
-      {/* Desktop: text overlay */}
-      <div className="hidden md:flex relative z-10 min-h-screen items-center pt-20 pb-14 pl-[11vw] lg:pl-[12vw] xl:pl-[13vw] pr-8">
-        <div className="w-full max-w-md lg:max-w-lg text-left">{heroContent}</div>
       </div>
     </section>
   );
