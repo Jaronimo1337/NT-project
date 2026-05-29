@@ -1,0 +1,30 @@
+# Dev overlay — hot reload, no rebuild on every save.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./server/src:/app/src
+      - ./server/uploads:/app/uploads
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: ""
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      server:
+        condition: service_started

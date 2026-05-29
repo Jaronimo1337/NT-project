@@ -54,7 +54,7 @@ const House = sequelize.define('House', {
     allowNull: true,
     defaultValue: 'namas',
     field: 'house_type'
-    // Values: 'namas', 'butas', 'vila', 'kotedžas', 'dupleksas', 'kita'
+    // Values: 'namas', 'butas', 'sklypas', 'vila', 'kotedžas', 'dupleksas', 'kita'
   },
   status: {
     type: DataTypes.STRING,

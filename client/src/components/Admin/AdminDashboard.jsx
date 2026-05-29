@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import SiteCopyEditor from './SiteCopyEditor';
+import {
+  LISTING_CATEGORIES,
+  getCategoryConfig,
+  getCategoryForHouseType
+} from '../../constants/listingCategories';
+import { API_URL } from '../../config/api';
 
 // Toast component
 const Toast = ({ message, type, onClose }) => {
@@ -31,7 +37,7 @@ const Toast = ({ message, type, onClose }) => {
 };
 
 const AdminDashboard = ({ onLogout }) => {
-  const [houses, setHouses] = useState([]);
+  const [allHouses, setAllHouses] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     address: '',
@@ -57,15 +63,43 @@ const AdminDashboard = ({ onLogout }) => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [editingHouse, setEditingHouse] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('houses');
+  const [listingCategory, setListingCategory] = useState('namai');
+  const [editingImages, setEditingImages] = useState([]);
+  const [reorderSaving, setReorderSaving] = useState(false);
 
-  const houseTypes = [
-    { value: 'namas', label: 'Namas' },
-    { value: 'butas', label: 'Butas' },
-    { value: 'vila', label: 'Vila' },
-    { value: 'kotedžas', label: 'Kotedžas' },
-    { value: 'dupleksas', label: 'Dupleksas' },
-    { value: 'kita', label: 'Kita' }
-  ];
+  const categoryConfig = getCategoryConfig(listingCategory);
+
+  const houses = useMemo(() => {
+    const types = categoryConfig.types;
+    return allHouses.filter((h) => types.includes(h.houseType));
+  }, [allHouses, categoryConfig.types]);
+
+  const upsertHouseInList = useCallback((house) => {
+    if (!house?.id) return;
+    setAllHouses((prev) => {
+      const index = prev.findIndex((h) => h.id === house.id);
+      if (index === -1) return [house, ...prev];
+      const next = [...prev];
+      next[index] = house;
+      return next;
+    });
+  }, []);
+
+  const houseTypeLabels = {
+    namas: 'Namas',
+    butas: 'Butas',
+    sklypas: 'Sklypas',
+    vila: 'Vila',
+    kotedžas: 'Kotedžas',
+    dupleksas: 'Dupleksas',
+    kita: 'Kita'
+  };
+
+  const houseTypes = categoryConfig.types.map((value) => ({
+    value,
+    label: houseTypeLabels[value] || value
+  }));
 
   const statusOptions = [
     { value: 'parduodamas', label: 'Parduodamas', color: 'bg-green-100 text-green-800' },
@@ -91,38 +125,48 @@ const AdminDashboard = ({ onLogout }) => {
     }
   }, []);
 
-  // Simple fetch houses function - NO LOOPS, NO CALLBACKS
-  const fetchHouses = async () => {
+  const fetchHouses = useCallback(async () => {
     try {
       const token = localStorage.getItem('adminToken');
       if (!token) {
         return;
       }
 
-      const response = await axios.get(`${API_URL}/api/houses`, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await axios.get(`${API_URL}/api/houses/all`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      
-      if (response.data && response.data.success) {
-        setHouses(response.data.data || []);
+
+      if (response.data?.success) {
+        setAllHouses(response.data.data || []);
       }
     } catch (error) {
-      // SILENT ERROR - no console spam
       if (error.response?.status === 401) {
         onLogout();
+      } else if (error.response?.status === 429) {
+        showToast('Per daug užklausų. Palaukite akimirką ir bandykite dar kartą.', 'error');
       }
     } finally {
       setInitialLoading(false);
     }
-  };
+  }, [onLogout]);
 
-  // Load houses ONLY ONCE when component mounts
   useEffect(() => {
+    setInitialLoading(true);
     fetchHouses();
-  }, []); // Empty dependency array = run only once
+  }, [fetchHouses]);
+
+  const switchListingCategory = (categoryId) => {
+    if (categoryId === listingCategory) return;
+    setListingCategory(categoryId);
+    if (isEditing) {
+      resetForm(categoryId);
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        houseType: getCategoryConfig(categoryId).defaultType
+      }));
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -132,7 +176,8 @@ const AdminDashboard = ({ onLogout }) => {
     }));
   };
 
-  const resetForm = () => {
+  const resetForm = (categoryId = listingCategory) => {
+    const config = getCategoryConfig(categoryId);
     setFormData({
       title: '',
       address: '',
@@ -144,7 +189,7 @@ const AdminDashboard = ({ onLogout }) => {
       floor: '',
       totalFloors: '',
       yearBuilt: '',
-      houseType: 'namas',
+      houseType: config.defaultType,
       status: 'parduodamas',
       description: '',
       features: '',
@@ -155,6 +200,7 @@ const AdminDashboard = ({ onLogout }) => {
     setImageFiles([]);
     setEditingHouse(null);
     setIsEditing(false);
+    setEditingImages([]);
     
     // Clear file input
     const fileInput = document.querySelector('input[type="file"]');
@@ -164,6 +210,9 @@ const AdminDashboard = ({ onLogout }) => {
   };
 
   const handleEdit = (house) => {
+    const category = getCategoryForHouseType(house.houseType);
+    setListingCategory(category);
+
     setFormData({
       title: house.title || '',
       address: house.address || '',
@@ -186,6 +235,10 @@ const AdminDashboard = ({ onLogout }) => {
     setEditingHouse(house);
     setIsEditing(true);
     setImageFiles([]);
+    const sortedImages = [...(house.images || [])].sort(
+      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+    );
+    setEditingImages(sortedImages);
     
     // Clear file input when editing
     const fileInput = document.querySelector('input[type="file"]');
@@ -198,6 +251,40 @@ const AdminDashboard = ({ onLogout }) => {
     resetForm();
   };
 
+  const moveImage = (index, direction) => {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= editingImages.length) return;
+    setEditingImages((prev) => {
+      const next = [...prev];
+      [next[index], next[newIndex]] = [next[newIndex], next[index]];
+      return next;
+    });
+  };
+
+  const saveImageOrder = async () => {
+    if (!editingHouse?.id || editingImages.length === 0) return;
+    setReorderSaving(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await axios.put(
+        `${API_URL}/api/houses/${editingHouse.id}/images/reorder`,
+        { imageIds: editingImages.map((img) => img.id) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data?.success) {
+        showToast('Nuotraukų tvarka išsaugota!', 'success');
+        const updated = response.data.data;
+        setEditingHouse(updated);
+        setEditingImages(updated.images || []);
+        upsertHouseInList(updated);
+      }
+    } catch (error) {
+      showToast('Klaida keičiant nuotraukų tvarką', 'error');
+    } finally {
+      setReorderSaving(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -205,14 +292,31 @@ const AdminDashboard = ({ onLogout }) => {
     try {
       const token = localStorage.getItem('adminToken');
       const formDataToSend = new FormData();
-      
-      // Add all form fields to FormData
-      Object.keys(formData).forEach(key => {
+
+      const houseFields = [
+        'title',
+        'address',
+        'price',
+        'area',
+        'rooms',
+        'bedrooms',
+        'bathrooms',
+        'floor',
+        'totalFloors',
+        'yearBuilt',
+        'houseType',
+        'status',
+        'description',
+        'sortOrder'
+      ];
+
+      houseFields.forEach((key) => {
         const value = formData[key];
         if (value !== '' && value !== null && value !== undefined) {
           formDataToSend.append(key, value);
         }
       });
+      formDataToSend.set('houseType', formData.houseType || categoryConfig.defaultType);
       
       // Add images if any
       if (imageFiles && imageFiles.length > 0) {
@@ -225,26 +329,25 @@ const AdminDashboard = ({ onLogout }) => {
       if (isEditing && editingHouse) {
         // Update existing house
         response = await axios.put(`${API_URL}/api/houses/${editingHouse.id}`, formDataToSend, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
       } else {
         // Create new house
         response = await axios.post(`${API_URL}/api/houses`, formDataToSend, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
       }
 
       if (response.data && response.data.success) {
-        showToast(isEditing ? 'Namas sėkmingai atnaujintas!' : 'Namas sėkmingai pridėtas!', 'success');
+        const savedLabel = categoryConfig.label.slice(0, -1).toLowerCase();
+        showToast(
+          isEditing
+            ? `${categoryConfig.label.slice(0, -1)} sėkmingai atnaujintas!`
+            : `${savedLabel.charAt(0).toUpperCase() + savedLabel.slice(1)} sėkmingai pridėtas!`,
+          'success'
+        );
+        upsertHouseInList(response.data.data);
         resetForm();
-        // Manually refresh houses list
-        fetchHouses();
       } else {
         showToast('Klaida: ' + (response.data?.message || 'Nežinoma klaida'), 'error');
       }
@@ -252,7 +355,14 @@ const AdminDashboard = ({ onLogout }) => {
       if (error.response?.status === 401) {
         onLogout();
       } else {
-        showToast(isEditing ? 'Klaida atnaujinant namą' : 'Klaida išsaugant namą', 'error');
+        const serverMsg =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.response?.data?.details?.[0]?.message;
+        showToast(
+          serverMsg || (isEditing ? 'Klaida atnaujinant' : 'Klaida išsaugant'),
+          'error'
+        );
       }
     } finally {
       setLoading(false);
@@ -275,8 +385,7 @@ const AdminDashboard = ({ onLogout }) => {
       
       if (response.data && response.data.success) {
         showToast('Namas ištrintas!', 'success');
-        // Manually refresh houses list
-        fetchHouses();
+        setAllHouses((prev) => prev.filter((h) => h.id !== id));
       } else {
         showToast('Klaida trinant namą', 'error');
       }
@@ -323,24 +432,89 @@ const AdminDashboard = ({ onLogout }) => {
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Namų Administravimas</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Administravimas</h1>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('houses')}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    activeTab === 'houses' ? 'bg-white shadow text-teal-800 font-medium' : 'text-gray-600'
+                  }`}
+                >
+                  Projektai
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('copy')}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    activeTab === 'copy' ? 'bg-white shadow text-teal-800 font-medium' : 'text-gray-600'
+                  }`}
+                >
+                  Tekstai
+                </button>
+              </div>
+              <Link
+                to="/"
+                className="inline-flex items-center border border-[#325b5d]/30 text-[#325b5d] px-4 py-2 rounded hover:bg-[#f0f5f3] transition-colors text-sm font-medium"
+              >
+                Į svetainę
+              </Link>
+              <button
+                type="button"
+                onClick={onLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors text-sm"
+              >
+                Atsijungti
+              </button>
+            </div>
+          </div>
+          <div className="flex sm:hidden gap-2 pb-3">
             <button
-              onClick={onLogout}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+              type="button"
+              onClick={() => setActiveTab('houses')}
+              className={`flex-1 py-2 text-sm rounded-md ${activeTab === 'houses' ? 'bg-teal-700 text-white' : 'bg-gray-100'}`}
             >
-              Atsijungti
+              Projektai
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('copy')}
+              className={`flex-1 py-2 text-sm rounded-md ${activeTab === 'copy' ? 'bg-teal-700 text-white' : 'bg-gray-100'}`}
+            >
+              Tekstai
             </button>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {activeTab === 'copy' ? (
+          <SiteCopyEditor showToast={showToast} />
+        ) : (
+        <>
+        <div className="mb-6 flex flex-wrap gap-2">
+          {LISTING_CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => switchListingCategory(cat.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                listingCategory === cat.id
+                  ? 'bg-teal-700 text-white shadow'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-teal-300'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Add House Form */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                {isEditing ? 'Redaguoti Namą' : 'Pridėti Naują Namą'}
+                {isEditing ? categoryConfig.editTitle : categoryConfig.formTitle}
               </h3>
               
               {isEditing && (
@@ -385,7 +559,7 @@ const AdminDashboard = ({ onLogout }) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className={`grid grid-cols-1 gap-4 ${listingCategory === 'sklypai' ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Kaina (EUR) *</label>
                     <input
@@ -401,7 +575,9 @@ const AdminDashboard = ({ onLogout }) => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Plotas (m²)</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {listingCategory === 'sklypai' ? 'Plotas (a)' : 'Plotas (m²)'}
+                    </label>
                     <input
                       type="number"
                       name="area"
@@ -411,75 +587,108 @@ const AdminDashboard = ({ onLogout }) => {
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Kambariai</label>
-                    <input
-                      type="number"
-                      name="rooms"
-                      value={formData.rooms}
-                      onChange={handleInputChange}
-                      min="0"
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+
+                  {listingCategory !== 'sklypai' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Kambariai</label>
+                      <input
+                        type="number"
+                        name="rooms"
+                        value={formData.rooms}
+                        onChange={handleInputChange}
+                        min="0"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Miegamieji</label>
-                    <input
-                      type="number"
-                      name="bedrooms"
-                      value={formData.bedrooms}
-                      onChange={handleInputChange}
-                      min="0"
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                {listingCategory !== 'sklypai' && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Miegamieji</label>
+                      <input
+                        type="number"
+                        name="bedrooms"
+                        value={formData.bedrooms}
+                        onChange={handleInputChange}
+                        min="0"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Vonios</label>
+                      <input
+                        type="number"
+                        name="bathrooms"
+                        value={formData.bathrooms}
+                        onChange={handleInputChange}
+                        min="0"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Statybos metai</label>
+                      <input
+                        type="number"
+                        name="yearBuilt"
+                        value={formData.yearBuilt}
+                        onChange={handleInputChange}
+                        min="1800"
+                        max={new Date().getFullYear()}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Vonios</label>
-                    <input
-                      type="number"
-                      name="bathrooms"
-                      value={formData.bathrooms}
-                      onChange={handleInputChange}
-                      min="0"
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                )}
+
+                {listingCategory === 'butai' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Aukštas</label>
+                      <input
+                        type="number"
+                        name="floor"
+                        value={formData.floor}
+                        onChange={handleInputChange}
+                        min="0"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Aukštų skaičius pastate</label>
+                      <input
+                        type="number"
+                        name="totalFloors"
+                        value={formData.totalFloors}
+                        onChange={handleInputChange}
+                        min="0"
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Statybos metai</label>
-                    <input
-                      type="number"
-                      name="yearBuilt"
-                      value={formData.yearBuilt}
-                      onChange={handleInputChange}
-                      min="1800"
-                      max={new Date().getFullYear()}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Tipas</label>
-                    <select
-                      name="houseType"
-                      value={formData.houseType}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {houseTypes.map(type => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {listingCategory === 'namai' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Tipas</label>
+                      <select
+                        name="houseType"
+                        value={formData.houseType}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {houseTypes.map((type) => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Statusas</label>
@@ -540,7 +749,7 @@ const AdminDashboard = ({ onLogout }) => {
                       onChange={handleInputChange}
                       className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <label className="text-sm font-medium text-gray-700">Rekomenduojamas namas</label>
+                    <label className="text-sm font-medium text-gray-700">Rekomenduojamas objektas</label>
                   </div>
                 </div>
 
@@ -548,17 +757,50 @@ const AdminDashboard = ({ onLogout }) => {
                   <label className="block text-sm font-medium text-gray-700">
                     Nuotraukos {isEditing ? '(Pridėti naujas)' : '(Kelios)'}
                   </label>
-                  {isEditing && editingHouse?.images?.length > 0 && (
-                    <div className="mb-2">
-                      <p className="text-xs text-gray-600 mb-2">Dabartinės nuotraukos:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {editingHouse.images.map((img, idx) => (
-                          <img
-                            key={idx}
-                            className="h-12 w-12 object-cover rounded border"
-                            src={`${API_URL}${img.imageUrl}`}
-                            alt={`Nuotrauka ${idx + 1}`}
-                          />
+                  {isEditing && editingImages.length > 0 && (
+                    <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-medium text-gray-700">Nuotraukų tvarka (pirmoji = pagrindinė)</p>
+                        <button
+                          type="button"
+                          onClick={saveImageOrder}
+                          disabled={reorderSaving}
+                          className="text-xs bg-teal-700 text-white px-2 py-1 rounded hover:bg-teal-800 disabled:opacity-50"
+                        >
+                          {reorderSaving ? 'Saugoma...' : 'Išsaugoti tvarką'}
+                        </button>
+                      </div>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {editingImages.map((img, idx) => (
+                          <div key={img.id} className="flex items-center gap-2 bg-white p-2 rounded border">
+                            <span className="text-xs text-gray-400 w-5">{idx + 1}.</span>
+                            <img
+                              className="h-10 w-10 object-cover rounded flex-shrink-0"
+                              src={`${API_URL}${img.imageUrl}`}
+                              alt=""
+                            />
+                            <span className="text-xs text-gray-500 flex-1 truncate">
+                              {img.caption || `Nuotrauka ${idx + 1}`}
+                            </span>
+                            <div className="flex gap-1">
+                              <button
+                                type="button"
+                                onClick={() => moveImage(idx, -1)}
+                                disabled={idx === 0}
+                                className="px-2 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50"
+                              >
+                                ↑
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => moveImage(idx, 1)}
+                                disabled={idx === editingImages.length - 1}
+                                className="px-2 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50"
+                              >
+                                ↓
+                              </button>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -582,7 +824,11 @@ const AdminDashboard = ({ onLogout }) => {
                   disabled={loading}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {loading ? (isEditing ? 'Atnaujinama...' : 'Išsaugoma...') : (isEditing ? 'Atnaujinti Namą' : 'Pridėti Namą')}
+                  {loading
+                    ? (isEditing ? 'Atnaujinama...' : 'Išsaugoma...')
+                    : (isEditing
+                      ? `Atnaujinti ${categoryConfig.label.slice(0, -1).toLowerCase()}`
+                      : `Pridėti ${categoryConfig.label.slice(0, -1).toLowerCase()}`)}
                 </button>
               </form>
             </div>
@@ -593,7 +839,7 @@ const AdminDashboard = ({ onLogout }) => {
             <div className="px-4 py-5 sm:p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Namų Sąrašas ({houses.length})
+                  {categoryConfig.listTitle} ({houses.length})
                 </h3>
                 <button
                   onClick={fetchHouses}
@@ -684,14 +930,13 @@ const AdminDashboard = ({ onLogout }) => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 text-center py-8">Namų sąrašas tuščias</p>
+                  <p className="text-gray-500 text-center py-8">{categoryConfig.listTitle} tuščias</p>
                 )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Statistics Card */}
         <div className="mt-8 bg-white overflow-hidden shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Statistika</h3>
@@ -722,11 +967,13 @@ const AdminDashboard = ({ onLogout }) => {
                 <div className="text-2xl font-bold text-blue-600">
                   {houses.length}
                 </div>
-                <div className="text-sm text-gray-500">Viso namų</div>
+                <div className="text-sm text-gray-500">Viso objektų</div>
               </div>
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

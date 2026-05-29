@@ -4,6 +4,7 @@ const { sequelize } = require('../config/database');
 const User = require('./User');
 const House = require('./House');
 const HouseImage = require('./HouseImage');
+const SiteContent = require('./SiteContent');
 
 // Define associations
 const defineAssociations = () => {
@@ -26,5 +27,6 @@ module.exports = {
   sequelize,
   User,
   House,
-  HouseImage
+  HouseImage,
+  SiteContent
 };

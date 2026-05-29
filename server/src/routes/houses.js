@@ -3,8 +3,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const router = express.Router();
+const { Op } = require('sequelize');
 const { House, HouseImage } = require('../models');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { getTypesForCategory } = require('../utils/listingCategories');
 
 // Configure multer for multiple file uploads
 const storage = multer.diskStorage({
@@ -24,21 +26,45 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit per file
+    fileSize: 25 * 1024 * 1024, // 25MB limit per file
     files: 10 // Maximum 10 files
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowedExt = /\.(jpe?g|png|gif|webp|heic|heif)$/i.test(ext);
+    const allowedMime =
+      /^image\//i.test(file.mimetype) ||
+      file.mimetype === 'application/octet-stream';
 
-    if (mimetype && extname) {
+    if (allowedExt || (allowedMime && ext)) {
       return cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'));
     }
+    cb(new Error('Only image files are allowed!'));
   }
 });
+
+const handleUpload = (req, res, next) => {
+  upload.array('images', 10)(req, res, (err) => {
+    if (!err) return next();
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: 'Failas per didelis. Maksimalus dydis — 25 MB.'
+      });
+    }
+    if (err.message?.includes('Only image files')) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Leidžiami tik nuotraukų failai (JPEG, PNG, GIF, WebP, HEIC). iPhone: Nustatymai → Kamera → Formatai → „Labiausiai suderinama“.'
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      message: err.message || 'Nepavyko įkelti failų'
+    });
+  });
+};
 
 // GET /api/houses - Get all houses with images (public)
 router.get('/', async (req, res) => {
@@ -46,6 +72,13 @@ router.get('/', async (req, res) => {
   console.log(`🔍 [${requestId}] GET /api/houses - Request received`);
   
   try {
+    const category = req.query.category;
+    const types = getTypesForCategory(category);
+    const where = { isActive: true };
+    if (types) {
+      where.houseType = { [Op.in]: types };
+    }
+
     const houses = await House.findAll({
       include: [{
         model: HouseImage,
@@ -54,7 +87,7 @@ router.get('/', async (req, res) => {
         required: false,
         order: [['sortOrder', 'ASC']]
       }],
-      where: { isActive: true },
+      where,
       order: [['sortOrder', 'ASC'], ['createdAt', 'DESC']]
     });
 
@@ -136,7 +169,7 @@ router.get('/:id(\\d+)', async (req, res) => {
 });
 
 // POST /api/houses - Create new house with images (admin only)
-router.post('/', authenticateToken, requireAdmin, upload.array('images', 10), async (req, res) => {
+router.post('/', authenticateToken, requireAdmin, handleUpload, async (req, res) => {
   try {
     console.log('📝 Creating house with data:', req.body);
     console.log('📷 Files received:', req.files?.length || 0);
@@ -167,7 +200,7 @@ router.post('/', authenticateToken, requireAdmin, upload.array('images', 10), as
       floor: req.body.floor ? parseInt(req.body.floor) : null,
       totalFloors: req.body.totalFloors ? parseInt(req.body.totalFloors) : null,
       yearBuilt: req.body.yearBuilt ? parseInt(req.body.yearBuilt) : null,
-      houseType: req.body.houseType || 'namas',
+      houseType: req.body.houseType || req.body.categoryDefaultType || 'namas',
       status: req.body.status || 'parduodamas',
       description: req.body.description || '',
       sortOrder: req.body.sortOrder ? parseInt(req.body.sortOrder) : 0,
@@ -239,7 +272,7 @@ router.post('/', authenticateToken, requireAdmin, upload.array('images', 10), as
 });
 
 // PUT /api/houses/:id - Update house (admin only)
-router.put('/:id(\\d+)', authenticateToken, requireAdmin, upload.array('images', 10), async (req, res) => {
+router.put('/:id(\\d+)', authenticateToken, requireAdmin, handleUpload, async (req, res) => {
   try {
     const house = await House.findByPk(req.params.id);
     
@@ -350,6 +383,63 @@ router.delete('/:id(\\d+)', authenticateToken, requireAdmin, async (req, res) =>
       success: false,
       message: 'Failed to delete house'
     });
+  }
+});
+
+// PUT /api/houses/:id/images/reorder - Reorder images (admin only)
+router.put('/:id(\\d+)/images/reorder', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { imageIds } = req.body;
+    if (!Array.isArray(imageIds) || imageIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'imageIds array is required'
+      });
+    }
+
+    const house = await House.findByPk(req.params.id);
+    if (!house) {
+      return res.status(404).json({ success: false, message: 'House not found' });
+    }
+
+    const images = await HouseImage.findAll({
+      where: { houseId: house.id, isActive: true }
+    });
+
+    const imageIdSet = new Set(images.map((img) => img.id));
+    const validIds = imageIds.filter((id) => imageIdSet.has(Number(id)));
+
+    if (validIds.length !== images.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'imageIds must include all active images for this house'
+      });
+    }
+
+    await Promise.all(
+      validIds.map((imageId, index) =>
+        HouseImage.update({ sortOrder: index }, { where: { id: imageId, houseId: house.id } })
+      )
+    );
+
+    const updatedHouse = await House.findByPk(house.id, {
+      include: [{
+        model: HouseImage,
+        as: 'images',
+        where: { isActive: true },
+        required: false,
+        order: [['sortOrder', 'ASC']]
+      }]
+    });
+
+    res.json({
+      success: true,
+      message: 'Images reordered successfully',
+      data: updatedHouse
+    });
+  } catch (error) {
+    console.error('Error reordering images:', error);
+    res.status(500).json({ success: false, message: 'Failed to reorder images' });
   }
 });
 

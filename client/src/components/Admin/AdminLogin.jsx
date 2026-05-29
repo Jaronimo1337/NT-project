@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-
-const getApiUrl = () => {
-  return import.meta.env.VITE_API_URL || 'http://localhost:3001';
-};
-
-const API_URL = getApiUrl();
+import { API_URL } from '../../config/api';
 
 const AdminLogin = ({ onLoginSuccess }) => {
   const [formData, setFormData] = useState({
@@ -202,6 +198,14 @@ const AdminLogin = ({ onLoginSuccess }) => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+          <div className="flex justify-center mb-4">
+            <Link
+              to="/"
+              className="text-sm font-medium text-[#325b5d] hover:text-[#264648] underline-offset-2 hover:underline"
+            >
+              ← Į svetainę
+            </Link>
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Admin Login
           </h2>

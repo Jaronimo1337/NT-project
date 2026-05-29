@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect, useRef } from "react";
-import { ArrowUpCircle } from "lucide-react";
 import Navigation from "./Navigation";
 import ScrollToTopButton from "./ScrollToTopButton";
 import HeroSection from "./Sections/HeroSection";
@@ -11,11 +10,15 @@ import SuccessStoriesSection from "./Sections/SuccessStoriesSection";
 import ContactSection from "./Sections/ContactsSection";
 import Footer from "./Footer";
 import AnimationStyles from "./AnimationStyles";
+import { SiteContentProvider } from "../context/SiteContentContext";
+
+const NAV_OFFSET = 72;
 
 export default function BrokerPortfolio() {
   const [activeSection, setActiveSection] = useState("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const sectionsRef = useRef({});
+  const mainRef = useRef(null);
 
   const registerSection = (id, ref) => {
     if (ref && ref instanceof Element) {
@@ -25,37 +28,62 @@ export default function BrokerPortfolio() {
 
   const scrollToSection = (id) => {
     const element = sectionsRef.current[id];
-    if (element && element instanceof Element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    const container = mainRef.current;
+    if (element && element instanceof Element && container) {
+      const top = element.offsetTop - NAV_OFFSET;
+      container.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
       setActiveSection(id);
       setIsMenuOpen(false);
     }
   };
 
-  // Handle intersection observer for sections
   useEffect(() => {
     const observers = [];
-    const options = {
-      threshold: 0.6,
-      rootMargin: '-10% 0px -10% 0px'
+    const navOptions = {
+      root: mainRef.current,
+      threshold: [0.25, 0.4, 0.55],
+      rootMargin: `-${NAV_OFFSET}px 0px -20% 0px`
     };
 
-    const callback = (entries) => {
+    const navCallback = (entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      if (visible.length > 0) {
+        setActiveSection(visible[0].target.id);
+      }
+    };
+
+    const revealCallback = (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
+          entry.target.classList.add('is-revealed');
         }
       });
     };
 
-    // Add a small delay to ensure all sections are rendered
+    const revealOptions = {
+      root: mainRef.current,
+      threshold: 0.1,
+      rootMargin: `-${NAV_OFFSET}px 0px -6% 0px`
+    };
+
     const timeoutId = setTimeout(() => {
+      const home = sectionsRef.current.home;
+      if (home instanceof Element) {
+        home.classList.add('is-revealed');
+      }
+
       Object.entries(sectionsRef.current).forEach(([id, section]) => {
         if (section && section instanceof Element) {
           try {
-            const observer = new IntersectionObserver(callback, options);
-            observer.observe(section);
-            observers.push(observer);
+            const navObserver = new IntersectionObserver(navCallback, navOptions);
+            navObserver.observe(section);
+            observers.push(navObserver);
+
+            const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
+            revealObserver.observe(section);
+            observers.push(revealObserver);
           } catch (error) {
             console.error(`Failed to observe section ${id}:`, error);
           }
@@ -65,59 +93,62 @@ export default function BrokerPortfolio() {
 
     return () => {
       clearTimeout(timeoutId);
-      observers.forEach((observer) => {
-        try {
-          observer.disconnect();
-        } catch (error) {
-          console.error('Error disconnecting observer:', error);
-        }
-      });
+      observers.forEach((observer) => observer.disconnect());
     };
   }, []);
 
   return (
-    <div className="font-sans text-gray-800 bg-white w-screen overflow-hidden">
-      <Navigation
-        activeSection={activeSection}
-        scrollToSection={scrollToSection}
-        isMenuOpen={isMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
-      />
+    <SiteContentProvider>
+      <div className="font-sans text-gray-800 bg-[#f8faf9] w-screen overflow-hidden">
+        <Navigation
+          activeSection={activeSection}
+          scrollToSection={scrollToSection}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+        />
 
-      <ScrollToTopButton
-        activeSection={activeSection}
-        scrollToSection={scrollToSection}
-      />
+        <ScrollToTopButton
+          activeSection={activeSection}
+          scrollToSection={scrollToSection}
+        />
 
-      <main className="h-screen w-full snap-y snap-mandatory overflow-y-auto scroll-smooth">
-        <HeroSection
-          registerSection={registerSection}
-          scrollToSection={scrollToSection}
-        />
-        <AboutSection
-          registerSection={registerSection}
-          scrollToSection={scrollToSection}
-        />
-        <ServicesSection
-          registerSection={registerSection}
-          scrollToSection={scrollToSection}
-        />
-        <PortfolioSection
-          registerSection={registerSection}
-          scrollToSection={scrollToSection}
-        />
-        <SuccessStoriesSection
-          registerSection={registerSection}
-          scrollToSection={scrollToSection}
-        />
-        <ContactSection
-          registerSection={registerSection}
-          scrollToSection={scrollToSection}
-        />
-        <Footer scrollToSection={scrollToSection} />
-      </main>
+        <main
+          ref={mainRef}
+          className="main-scroll h-screen w-full overflow-y-auto scroll-smooth"
+          style={{ scrollPaddingTop: `${NAV_OFFSET}px` }}
+        >
+          <HeroSection
+            registerSection={registerSection}
+            scrollToSection={scrollToSection}
+          />
+          <AboutSection
+            registerSection={registerSection}
+            scrollToSection={scrollToSection}
+          />
+          <ServicesSection
+            registerSection={registerSection}
+            scrollToSection={scrollToSection}
+          />
+          <PortfolioSection
+            registerSection={registerSection}
+            scrollToSection={scrollToSection}
+          />
+          <SuccessStoriesSection
+            registerSection={registerSection}
+            scrollToSection={scrollToSection}
+          />
+          <ContactSection
+            registerSection={registerSection}
+            scrollToSection={scrollToSection}
+          />
+          <Footer
+            scrollToSection={scrollToSection}
+            registerSection={registerSection}
+          />
+        </main>
 
-      <AnimationStyles />
-    </div>
+        <AnimationStyles />
+      </div>
+    </SiteContentProvider>
   );
 }

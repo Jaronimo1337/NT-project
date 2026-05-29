@@ -1,15 +1,16 @@
 import { Phone, Mail, MapPin } from 'lucide-react';
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
+import { useSiteContent } from '../../context/SiteContentContext';
 
 const ContactInfo = ({ icon, title, content, delay }) => {
   return (
-    <div className="flex items-center animate-fade-in-up mb-3" style={{ animationDelay: delay ? `${delay}s` : '0s' }}>
-      <div className="mr-3 bg-blue-600 p-2 rounded-full text-white">
+    <div className="flex items-start animate-fade-in-up mb-3" style={{ animationDelay: delay ? `${delay}s` : '0s' }}>
+      <div className="mr-3 bg-[#325b5d] p-2 rounded-full text-white">
         {React.cloneElement(icon, { size: 16 })}
       </div>
       <div>
-        <h3 className="text-base font-semibold mb-1">{title}</h3>
+        <h3 className="text-base text-left font-semibold mb-1">{title}</h3>
         <p className="text-sm text-gray-700">{content}</p>
       </div>
     </div>
@@ -17,6 +18,7 @@ const ContactInfo = ({ icon, title, content, delay }) => {
 };
 
 const ContactSection = ({ registerSection, scrollToSection }) => {
+  const { t } = useSiteContent();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -87,16 +89,16 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
     <section
       id="contact"
       ref={(el) => registerSection('contact', el)}
-      className="h-screen w-full snap-start flex items-center bg-gray-50 overflow-hidden"
+      className="page-section section-reveal h-screen w-full flex items-center bg-[#eef3f1] overflow-hidden"
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
         <div className="text-center mb-6">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 animate-fade-in-up">
-            Susisiekite <span className="text-blue-600">Su Manimi</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 animate-fade-in-up text-[#1a3335]">
+            {t('contact.title', 'Susisiekite Su Manimi')}
           </h2>
-          <div className="w-12 sm:w-16 h-1 bg-blue-600 mx-auto mb-3 animate-fade-in-up"></div>
-          <p className="text-sm sm:text-base text-gray-700 mb-4 animate-fade-in-up max-w-xl mx-auto">
-            Turite klausimų apie nekilnojamąjį turtą? Susisiekite - konsultacija nemokama!
+          <div className="w-12 sm:w-16 h-1 bg-[#c4a35a] mx-auto mb-3 animate-fade-in-up"></div>
+          <p className="text-sm sm:text-base text-[#3d5a5c] mb-4 animate-fade-in-up max-w-xl mx-auto">
+            {t('contact.subtitle', '')}
           </p>
         </div>
 
@@ -109,26 +111,26 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
               <ContactInfo 
                 icon={<Phone />}
                 title="Telefonas"
-                content="+370 68528893"
+                content={t('contact.phone', '+370 68528893')}
               />
               <ContactInfo 
                 icon={<Mail />}
                 title="El. paštas"
-                content="lilija.eimontiene@gmail.com"
+                content={t('contact.email', 'lilija.eimontiene@gmail.com')}
                 delay="0.1"
               />
               <ContactInfo 
                 icon={<MapPin />}
                 title="Veiklos zona"
-                content="Vilnius ir apylinkės"
+                content={t('contact.location', 'Vilnius ir apylinkės')}
                 delay="0.2"
               />
             </div>
 
-            <div className="p-3 bg-blue-50 rounded-lg animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <h4 className="font-semibold text-blue-900 mb-2 text-sm">Darbo laikas</h4>
-              <p className="text-blue-800 text-xs leading-relaxed">
-                Pr-Pt: 9:00-18:00 • Št: 10:00-16:00 • Sk: susitarus
+            <div className="p-3 bg-[#325b5d]/10 rounded-lg animate-fade-in-up border border-[#325b5d]/10" style={{ animationDelay: '0.3s' }}>
+              <h4 className="font-semibold text-[#325b5d] mb-2 text-sm">Darbo laikas</h4>
+              <p className="text-[#3d5a5c] text-xs leading-relaxed">
+                {t('contact.hours', 'Pr-Pt: 9:00-18:00 • Št: 10:00-16:00 • Sk: susitarus')}
               </p>
             </div>
 

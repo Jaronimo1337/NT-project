@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
+import { useSiteContent } from '../../context/SiteContentContext';
+import { PORTFOLIO_FILTERS } from '../../constants/listingCategories';
+import { API_URL } from '../../config/api';
 
 const HouseCard = ({ house, delay, index, onClick }) => {
   const firstImage = house.images && house.images.length > 0 ? house.images[0] : null;
@@ -73,7 +76,7 @@ const imageSrc = firstImage ? getImageUrl(firstImage.imageUrl) : `https://picsum
         <div className="flex justify-between items-center">
           <span className="text-responsive-base sm:text-responsive-lg font-bold text-white">{formatPrice(house.price)}</span>
           <div className="text-responsive-xs sm:text-responsive-sm text-gray-300">
-            {house.area && `${house.area} m²`}
+            {house.area && `${house.area} ${house.houseType === 'sklypas' ? 'a' : 'm²'}`}
             {house.rooms && ` • ${house.rooms} k.`}
           </div>
         </div>
@@ -83,6 +86,7 @@ const imageSrc = firstImage ? getImageUrl(firstImage.imageUrl) : `https://picsum
 };
 
 const PortfolioSection = ({ registerSection, scrollToSection }) => {
+  const { t } = useSiteContent();
   const [houses, setHouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedHouse, setSelectedHouse] = useState(null);
@@ -91,6 +95,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [fetchAttempted, setFetchAttempted] = useState(false);
+  const [portfolioFilter, setPortfolioFilter] = useState('visi');
 
   // Touch handling for swipe
   const [touchStart, setTouchStart] = useState(null);
@@ -159,68 +164,84 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
     }
   };
 
+  const modalOpen = showModal || showImageModal;
+
+  // Lock page scroll while a modal is open (main is the scroll container, not body)
+  useEffect(() => {
+    if (!modalOpen) return;
+
+    const main = document.querySelector('main.main-scroll');
+    const scrollTop = main?.scrollTop ?? 0;
+
+    if (main) {
+      main.style.overflow = 'hidden';
+    }
+    const prevBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      if (main) {
+        main.style.overflow = '';
+        main.scrollTop = scrollTop;
+      }
+      document.body.style.overflow = prevBodyOverflow;
+    };
+  }, [modalOpen]);
+
   // Keyboard navigation
   useEffect(() => {
+    if (!modalOpen) return;
+
     const handleKeyPress = (e) => {
-      if (showImageModal) {
-        switch (e.key) {
-          case 'Escape':
-            handleCloseImageModal();
-            break;
-          case 'ArrowLeft':
-            if (selectedHouse?.images && selectedHouse.images.length > 1) {
-              const newIndex = currentImageIndex === 0 ? selectedHouse.images.length - 1 : currentImageIndex - 1;
-              setCurrentImageIndex(newIndex);
-              setSelectedImage(selectedHouse.images[newIndex]);
-            }
-            break;
-          case 'ArrowRight':
-            if (selectedHouse?.images && selectedHouse.images.length > 1) {
-              const newIndex = currentImageIndex === selectedHouse.images.length - 1 ? 0 : currentImageIndex + 1;
-              setCurrentImageIndex(newIndex);
-              setSelectedImage(selectedHouse.images[newIndex]);
-            }
-            break;
+      if (e.key === 'Escape') {
+        if (showImageModal) {
+          handleCloseImageModal();
+        } else if (showModal) {
+          handleCloseModal();
+        }
+        return;
+      }
+
+      if (showImageModal && selectedHouse?.images?.length > 1) {
+        if (e.key === 'ArrowLeft') {
+          const newIndex =
+            currentImageIndex === 0 ? selectedHouse.images.length - 1 : currentImageIndex - 1;
+          setCurrentImageIndex(newIndex);
+          setSelectedImage(selectedHouse.images[newIndex]);
+        } else if (e.key === 'ArrowRight') {
+          const newIndex =
+            currentImageIndex === selectedHouse.images.length - 1 ? 0 : currentImageIndex + 1;
+          setCurrentImageIndex(newIndex);
+          setSelectedImage(selectedHouse.images[newIndex]);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [showImageModal, currentImageIndex, selectedHouse]);
+  }, [modalOpen, showImageModal, showModal, currentImageIndex, selectedHouse]);
 
-  const fetchHouses = async () => {
-    if (fetchAttempted) return;
-    
+  const fetchHouses = async (category = 'visi') => {
     try {
-      setFetchAttempted(true);
-      console.log('🔄 Fetching houses from:', `${API_URL}/api/houses`);
-      
-      const response = await fetch(`${API_URL}/api/houses`);
+      setLoading(true);
+      const params = category && category !== 'visi' ? `?category=${category}` : '';
+      const response = await fetch(`${API_URL}/api/houses${params}`);
       const data = await response.json();
-      
-      console.log('📊 API Response:', data);
-      
+
       if (data.success) {
         setHouses(data.data);
-        console.log('✅ Houses loaded:', data.data.length);
-      } else {
-        console.error('❌ API returned error:', data.message);
       }
     } catch (error) {
-      console.error('❌ Error fetching houses:', error);
-      setFetchAttempted(false);
+      console.error('Error fetching listings:', error);
     } finally {
       setLoading(false);
+      setFetchAttempted(true);
     }
   };
 
   useEffect(() => {
-    fetchHouses();
-    if (registerSection) {
-      registerSection('portfolio', 'Portfelis');
-    }
-  }, [registerSection]);
+    fetchHouses(portfolioFilter);
+  }, [portfolioFilter]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('lt-LT', {
@@ -253,6 +274,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
     switch (type) {
       case 'namas': return 'Namas';
       case 'butas': return 'Butas';
+      case 'sklypas': return 'Sklypas';
       case 'vila': return 'Vila';
       case 'kotedžas': return 'Kotedžas';
       case 'dupleksas': return 'Dupleksas';
@@ -265,22 +287,38 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
     <section 
       id="portfolio" 
       ref={(el) => registerSection('portfolio', el)}
-      className="h-screen mobile-min-h-screen mobile-h-auto w-full snap-start flex items-center bg-gray-50 overflow-y-auto lg:overflow-hidden"
+      className="page-section section-reveal h-screen mobile-min-h-screen mobile-h-auto w-full flex items-center bg-[#f4f7f6] overflow-y-auto lg:overflow-hidden"
     >
       <div className="section-container w-full mobile-padding px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-          <h2 className="text-responsive-3xl sm:text-responsive-4xl font-bold mb-3 sm:mb-4 animate-fade-in-up">
-            Parduodami <span className="text-blue-600">Namai</span>
+          <h2 className="text-responsive-3xl sm:text-responsive-4xl font-bold mb-3 sm:mb-4 animate-fade-in-up text-[#1a3335]">
+            {t('portfolio.title', 'Parduodami Projektai')}
           </h2>
-          <div className="w-12 sm:w-16 h-1 bg-blue-600 mx-auto mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up"></div>
-          <p className="text-responsive-base sm:text-responsive-lg text-gray-700 max-w-2xl mx-auto animate-fade-in-up leading-relaxed">
-            Šiuo metu parduodami objektai - 2025 metai
+          <div className="w-12 sm:w-16 h-1 bg-[#c4a35a] mx-auto mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up"></div>
+          <p className="text-responsive-base sm:text-responsive-lg text-[#3d5a5c] max-w-2xl mx-auto animate-fade-in-up leading-relaxed">
+            {t('portfolio.subtitle', '')}
           </p>
+          <div className="flex flex-wrap justify-center gap-2 mt-6 sm:mt-8">
+            {PORTFOLIO_FILTERS.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setPortfolioFilter(filter.id)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  portfolioFilter === filter.id
+                    ? 'bg-[#325b5d] text-white shadow-md'
+                    : 'bg-white text-[#3d5a5c] border border-[#325b5d]/20 hover:border-[#325b5d]/40'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
           <div className="flex justify-center items-center h-32 sm:h-48 lg:h-64">
-            <div className="animate-spin rounded-full h-16 w-16 sm:h-24 sm:w-24 lg:h-32 lg:w-32 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-16 w-16 sm:h-24 sm:w-24 lg:h-32 lg:w-32 border-b-2 border-[#325b5d]"></div>
           </div>
         ) : houses.length > 0 ? (
           <div className="responsive-grid-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mobile-gap-4 gap-4 sm:gap-6 lg:gap-8 max-w-7xl mx-auto">
@@ -296,38 +334,48 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
           </div>
         ) : (
           <div className="text-center py-12 sm:py-16 lg:py-20">
-            <h3 className="text-responsive-xl sm:text-responsive-2xl font-semibold text-gray-600 mb-3 sm:mb-4">Namų kol kas nėra</h3>
-            <p className="text-responsive-base text-gray-500">Greitai čia atsiras puikių namų pasiūlymų!</p>
+            <h3 className="text-responsive-xl sm:text-responsive-2xl font-semibold text-gray-600 mb-3 sm:mb-4">{t('portfolio.emptyTitle', '')}</h3>
+            <p className="text-responsive-base text-gray-500">{t('portfolio.emptyText', '')}</p>
           </div>
         )}
       </div>
 
-      {/* House Detail Modal */}
-      {showModal && selectedHouse && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 mobile-padding p-2 sm:p-4">
-          <div className="modal-container bg-white rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center mobile-p-4 p-4 sm:p-6 border-b">
-              <div>
-                <h3 className="text-responsive-lg sm:text-responsive-2xl font-bold text-gray-800">{selectedHouse.title}</h3>
-                <p className="text-responsive-sm sm:text-responsive-base text-gray-600">{selectedHouse.address}</p>
+      {showModal &&
+        selectedHouse &&
+        createPortal(
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm overscroll-none"
+          onClick={handleCloseModal}
+          onWheel={(e) => e.preventDefault()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="portfolio-modal-title"
+        >
+          <div
+            className="modal-container bg-white rounded-2xl max-w-[67.2rem] w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex-shrink-0 flex justify-between items-start gap-4 px-5 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-[#f8faf9]">
+              <div className="min-w-0 pr-2">
+                <h3 id="portfolio-modal-title" className="text-lg sm:text-2xl font-bold text-[#1a3335] truncate">{selectedHouse.title}</h3>
+                {selectedHouse.address && (
+                  <p className="text-sm sm:text-base text-gray-500 mt-0.5">{selectedHouse.address}</p>
+                )}
               </div>
               <button
                 onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600 text-xl sm:text-2xl font-bold p-1"
+                className="flex-shrink-0 p-2 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                 aria-label="Uždaryti"
               >
-                ×
+                <X size={22} />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="modal-content mobile-p-4 p-4 sm:p-6">
-              {/* Image Carousel */}
+            <div className="flex-1 overflow-y-auto overscroll-contain">
               {selectedHouse.images && selectedHouse.images.length > 0 ? (
-                <div className="mb-4 sm:mb-6">
-                  <div 
-                    className="modal-image relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden"
+                <div className="bg-gray-900">
+                  <div
+                    className="relative w-full aspect-[16/10] sm:aspect-video"
                     onTouchStart={onTouchStart}
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEnd}
@@ -335,169 +383,169 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
                     <img
                       src={`${API_URL}${selectedHouse.images[currentImageIndex]?.imageUrl}`}
                       alt={selectedHouse.images[currentImageIndex]?.caption || selectedHouse.title}
-                      className="w-full h-full object-cover cursor-pointer"
+                      className="w-full h-full object-cover cursor-zoom-in"
                       onClick={() => handleImageClick(selectedHouse.images[currentImageIndex], currentImageIndex)}
                     />
-                    
-                    {/* Navigation Arrows */}
                     {selectedHouse.images.length > 1 && (
                       <>
                         <button
+                          type="button"
                           onClick={prevImage}
-                          className="absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-1 sm:p-2 rounded-full hover:bg-black/70 transition-all text-sm sm:text-base"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all"
                         >
                           ←
                         </button>
                         <button
+                          type="button"
                           onClick={nextImage}
-                          className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-1 sm:p-2 rounded-full hover:bg-black/70 transition-all text-sm sm:text-base"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all"
                         >
                           →
                         </button>
+                        <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2.5 py-1 rounded-full text-xs">
+                          {currentImageIndex + 1} / {selectedHouse.images.length}
+                        </div>
                       </>
                     )}
-
-                    {/* Image Counter */}
-                    {selectedHouse.images.length > 1 && (
-                      <div className="absolute bottom-1 sm:bottom-2 right-1 sm:right-2 bg-black/50 text-white px-2 py-1 rounded text-xs sm:text-sm">
-                        {currentImageIndex + 1} / {selectedHouse.images.length}
-                      </div>
-                    )}
                   </div>
-
-                  {/* Thumbnail Navigation */}
                   {selectedHouse.images.length > 1 && (
-                    <div className="flex space-x-2 mt-3 sm:mt-4 overflow-x-auto pb-2">
+                    <div className="flex gap-2 px-4 py-3 overflow-x-auto bg-gray-900/95">
                       {selectedHouse.images.map((image, index) => (
-                        <img
-                          key={index}
-                          src={`${API_URL}${image.imageUrl}`}
-                          alt={image.caption || `Nuotrauka ${index + 1}`}
-                          className={`w-12 h-12 sm:w-16 sm:h-16 object-cover rounded cursor-pointer flex-shrink-0 ${
-                            index === currentImageIndex 
-                              ? 'ring-2 ring-blue-500' 
-                              : 'opacity-70 hover:opacity-100'
-                          }`}
+                        <button
+                          key={image.id || index}
+                          type="button"
                           onClick={() => setCurrentImageIndex(index)}
-                        />
+                          className={`flex-shrink-0 rounded-lg overflow-hidden transition-all ${
+                            index === currentImageIndex ? 'ring-2 ring-[#c4a35a] opacity-100' : 'opacity-60 hover:opacity-90'
+                          }`}
+                        >
+                          <img
+                            src={`${API_URL}${image.imageUrl}`}
+                            alt=""
+                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover"
+                          />
+                        </button>
                       ))}
                     </div>
                   )}
-
-                  {/* Image Caption */}
-                  {selectedHouse.images[currentImageIndex]?.caption && (
-                    <p className="text-responsive-sm text-gray-600 mt-2 text-center">
-                      {selectedHouse.images[currentImageIndex].caption}
-                    </p>
-                  )}
                 </div>
               ) : (
-                <div className="mb-4 sm:mb-6 w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500 text-responsive-sm">Nuotraukų nėra</p>
+                <div className="w-full aspect-video bg-gray-100 flex items-center justify-center">
+                  <p className="text-gray-500 text-sm">Nuotraukų nėra</p>
                 </div>
               )}
 
-              {/* House Details */}
-              <div className="space-y-4 sm:space-y-6">
-                {/* Price and Status */}
-                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div className="px-5 sm:px-6 py-5 sm:py-6 space-y-5">
+                <div className="flex flex-wrap items-end justify-between gap-4">
                   <div>
-                    <h4 className="text-responsive-2xl sm:text-responsive-3xl font-bold text-gray-800 mb-2">
-                      {formatPrice(selectedHouse.price)}
-                    </h4>
-                    <span className={`${getStatusColor(selectedHouse.status)} text-white px-3 py-1 rounded-full text-responsive-sm font-medium`}>
+                    <p className="text-2xl sm:text-3xl font-bold text-[#1a3335]">{formatPrice(selectedHouse.price)}</p>
+                    <span className={`inline-block mt-2 ${getStatusColor(selectedHouse.status)} text-white px-3 py-1 rounded-full text-xs font-medium`}>
                       {getStatusText(selectedHouse.status)}
                     </span>
                   </div>
-                  <div className="text-left sm:text-right">
-                    <h4 className="text-responsive-base sm:text-responsive-lg font-semibold text-gray-700 mb-1">Tipas</h4>
-                    <p className="text-responsive-sm sm:text-responsive-base text-gray-600">{getHouseTypeText(selectedHouse.houseType)}</p>
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium text-gray-700">Tipas: </span>
+                    {getHouseTypeText(selectedHouse.houseType)}
                   </div>
                 </div>
 
-                {/* Property Details Grid */}
-                <div className="responsive-grid-2 grid grid-cols-2 lg:grid-cols-4 mobile-gap-4 gap-3 sm:gap-4">
-                  {selectedHouse.area && (
-                    <div className="bg-gray-50 mobile-p-4 p-3 sm:p-4 rounded-lg text-center">
-                      <h5 className="font-medium text-gray-700 mb-1 text-responsive-sm">Plotas</h5>
-                      <p className="text-responsive-base sm:text-responsive-lg font-semibold text-gray-800">{selectedHouse.area} m²</p>
-                    </div>
-                  )}
-                  {selectedHouse.rooms && (
-                    <div className="bg-gray-50 mobile-p-4 p-3 sm:p-4 rounded-lg text-center">
-                      <h5 className="font-medium text-gray-700 mb-1 text-responsive-sm">Kambariai</h5>
-                      <p className="text-responsive-base sm:text-responsive-lg font-semibold text-gray-800">{selectedHouse.rooms}</p>
-                    </div>
-                  )}
-                  {selectedHouse.bedrooms && (
-                    <div className="bg-gray-50 mobile-p-4 p-3 sm:p-4 rounded-lg text-center">
-                      <h5 className="font-medium text-gray-700 mb-1 text-responsive-sm">Miegamieji</h5>
-                      <p className="text-responsive-base sm:text-responsive-lg font-semibold text-gray-800">{selectedHouse.bedrooms}</p>
-                    </div>
-                  )}
-                  {selectedHouse.bathrooms && (
-                    <div className="bg-gray-50 mobile-p-4 p-3 sm:p-4 rounded-lg text-center">
-                      <h5 className="font-medium text-gray-700 mb-1 text-responsive-sm">Vonios</h5>
-                      <p className="text-responsive-base sm:text-responsive-lg font-semibold text-gray-800">{selectedHouse.bathrooms}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Additional Info */}
-                <div className="responsive-grid-2 grid grid-cols-1 sm:grid-cols-2 mobile-gap-4 gap-3 sm:gap-4">
-                  {selectedHouse.yearBuilt && (
-                    <div className="bg-gray-50 mobile-p-4 p-3 sm:p-4 rounded-lg">
-                      <h5 className="font-medium text-gray-700 mb-1 text-responsive-sm">Statybos metai</h5>
-                      <p className="text-responsive-sm sm:text-responsive-base text-gray-600">{selectedHouse.yearBuilt}</p>
-                    </div>
-                  )}
-                  {selectedHouse.floor && (
-                    <div className="bg-gray-50 mobile-p-4 p-3 sm:p-4 rounded-lg">
-                      <h5 className="font-medium text-gray-700 mb-1 text-responsive-sm">Aukštas</h5>
-                      <p className="text-responsive-sm sm:text-responsive-base text-gray-600">
-                        {selectedHouse.floor}
-                        {selectedHouse.totalFloors && ` iš ${selectedHouse.totalFloors}`}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Description */}
                 {selectedHouse.description && (
-                  <div>
-                    <h4 className="text-responsive-base sm:text-responsive-lg font-semibold text-gray-700 mb-2">Aprašymas</h4>
-                    <p className="text-responsive-sm sm:text-responsive-base text-gray-600 leading-relaxed">{selectedHouse.description}</p>
+                  <div className="rounded-xl bg-[#f4f7f6] border border-[#325b5d]/10 p-4 sm:p-5">
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-[#325b5d] mb-2">Aprašymas</h4>
+                    <p className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-line">
+                      {selectedHouse.description}
+                    </p>
                   </div>
                 )}
 
-                {/* Call to Action */}
-                <div className="mt-4 sm:mt-6 pt-4 border-t">
-                  <div className="flex flex-col sm:flex-row mobile-gap-4 gap-3">
-                    <button 
-                      onClick={() => scrollToSection('contact')}
-                      className="flex-1 bg-blue-600 text-white py-3 px-4 sm:px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium text-responsive-sm sm:text-responsive-base"
-                    >
-                      Susidomėjau
-                    </button>
-                    <button 
-                      onClick={() => scrollToSection('contact')}
-                      className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 sm:px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium text-responsive-sm sm:text-responsive-base"
-                    >
-                      Susisiekti
-                    </button>
-                  </div>
+                <div className={`grid gap-3 ${selectedHouse.houseType === 'sklypas' ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'}`}>
+                  {selectedHouse.area && (
+                    <div className="bg-white border border-gray-100 p-3 rounded-lg text-center shadow-sm">
+                      <h5 className="text-xs text-gray-500 mb-1">Plotas</h5>
+                      <p className="font-semibold text-[#1a3335]">
+                        {selectedHouse.area} {selectedHouse.houseType === 'sklypas' ? 'a' : 'm²'}
+                      </p>
+                    </div>
+                  )}
+                  {selectedHouse.houseType !== 'sklypas' && selectedHouse.rooms && (
+                    <div className="bg-white border border-gray-100 p-3 rounded-lg text-center shadow-sm">
+                      <h5 className="text-xs text-gray-500 mb-1">Kambariai</h5>
+                      <p className="font-semibold text-[#1a3335]">{selectedHouse.rooms}</p>
+                    </div>
+                  )}
+                  {selectedHouse.houseType !== 'sklypas' && selectedHouse.bedrooms && (
+                    <div className="bg-white border border-gray-100 p-3 rounded-lg text-center shadow-sm">
+                      <h5 className="text-xs text-gray-500 mb-1">Miegamieji</h5>
+                      <p className="font-semibold text-[#1a3335]">{selectedHouse.bedrooms}</p>
+                    </div>
+                  )}
+                  {selectedHouse.houseType !== 'sklypas' && selectedHouse.bathrooms && (
+                    <div className="bg-white border border-gray-100 p-3 rounded-lg text-center shadow-sm">
+                      <h5 className="text-xs text-gray-500 mb-1">Vonios</h5>
+                      <p className="font-semibold text-[#1a3335]">{selectedHouse.bathrooms}</p>
+                    </div>
+                  )}
                 </div>
+
+                {(selectedHouse.yearBuilt || (selectedHouse.floor && selectedHouse.houseType !== 'sklypas')) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    {selectedHouse.yearBuilt && (
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="text-gray-500">Statybos metai</span>
+                        <span className="font-medium">{selectedHouse.yearBuilt}</span>
+                      </div>
+                    )}
+                    {selectedHouse.floor && (
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="text-gray-500">Aukštas</span>
+                        <span className="font-medium">
+                          {selectedHouse.floor}
+                          {selectedHouse.totalFloors && ` / ${selectedHouse.totalFloors}`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
+
+            <div className="flex-shrink-0 px-5 sm:px-6 py-4 border-t border-gray-100 bg-white flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  handleCloseModal();
+                  scrollToSection('contact');
+                }}
+                className="flex-1 bg-[#325b5d] text-white py-3 px-6 rounded-lg hover:bg-[#264648] transition-colors font-medium text-sm"
+              >
+                Susidomėjau
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleCloseModal();
+                  scrollToSection('contact');
+                }}
+                className="flex-1 border border-[#325b5d]/30 text-[#325b5d] py-3 px-6 rounded-lg hover:bg-[#f4f7f6] transition-colors font-medium text-sm"
+              >
+                Susisiekti
+              </button>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Full Screen Image Modal */}
-      {showImageModal && selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-60 mobile-padding p-2 sm:p-4"
+      {showImageModal &&
+        selectedImage &&
+        createPortal(
+        <div
+          className="fixed inset-0 z-[110] bg-black/90 flex items-center justify-center mobile-padding p-2 sm:p-4 overscroll-none"
           onClick={handleCloseImageModal}
+          onWheel={(e) => e.preventDefault()}
+          role="dialog"
+          aria-modal="true"
         >
           <div className="relative w-full h-full flex items-center justify-center">
             <button
@@ -561,7 +609,8 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );

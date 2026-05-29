@@ -13,6 +13,8 @@ require('./models/index'); // This will set up associations
 // Import routes
 const authRoutes = require('./routes/auth');
 const houseRoutes = require('./routes/houses');
+const siteContentRoutes = require('./routes/siteContent');
+const { seedSiteContent } = require('./routes/siteContent');
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Changed to 3000 to match your frontend
@@ -40,16 +42,18 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later.'
-  }
-});
-app.use(limiter);
+// Rate limiting (production only — dev/admin would hit 100/15min quickly)
+if (process.env.NODE_ENV === 'production') {
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 300,
+    message: {
+      success: false,
+      message: 'Too many requests from this IP, please try again later.'
+    }
+  });
+  app.use(limiter);
+}
 
 // CORS configuration
 app.use(cors({
@@ -57,7 +61,7 @@ app.use(cors({
     ? ['https://eimonte.lt',
     'https://www.eimonte.lt',
     'http://localhost:5173']
-    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'], 
+    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:8080'], 
   credentials: true
 }));
 
@@ -72,6 +76,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/houses', houseRoutes);
+app.use('/api/site-content', siteContentRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -135,6 +140,8 @@ const startServer = async () => {
     // Sync database models
     await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
     console.log('✅ Database models synchronized');
+    await seedSiteContent();
+    console.log('✅ Site content seeded');
     
     // Create default admin user if it doesn't exist
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
