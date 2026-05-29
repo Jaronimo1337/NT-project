@@ -87,8 +87,8 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
       />
 
       {/* Mobile: photo on top, text below (no text on face) */}
-      <div className="md:hidden flex flex-col min-h-screen">
-        <div className="relative w-full h-[44vh] min-h-[220px] max-h-[360px] flex-shrink-0">
+      <div className="md:hidden flex flex-col min-h-screen pt-16">
+        <div className="relative w-full h-[40vh] min-h-[200px] max-h-[320px] flex-shrink-0">
           <img
             src={HERO_IMAGE}
             alt=""

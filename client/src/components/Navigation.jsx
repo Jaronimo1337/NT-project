@@ -16,18 +16,18 @@ const Navigation = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen 
   ];
 
   const headerSurface = onHero
-    ? 'bg-transparent border-b border-white/10'
+    ? 'bg-[#1a3335]/95 backdrop-blur-md border-b border-white/10 md:bg-transparent md:backdrop-blur-none'
     : 'bg-white border-b border-gray-200 shadow-sm';
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50">
+    <header className="fixed top-0 left-0 w-full z-[60]">
       <div className={`transition-all duration-300 ${headerSurface}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 lg:h-[4.25rem] gap-4">
+          <div className="flex items-center justify-between h-16 lg:h-[4.25rem] gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-4">
             <button
               type="button"
               onClick={() => scrollToSection('home')}
-              className="flex items-center gap-3 min-w-0 group justify-self-start"
+              className="flex items-center gap-3 min-w-0 group flex-shrink-0 lg:justify-self-start"
             >
               <img
                 src={SITE_LOGO}
@@ -82,26 +82,24 @@ const Navigation = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen 
               })}
             </nav>
 
-            <div className="justify-self-end">
-              <button
-                type="button"
-                className={`lg:hidden p-2 rounded-full transition-colors ${
-                  onHero ? 'text-white hover:bg-white/10' : 'text-[#325b5d] hover:bg-[#e8eeec]'
-                }`}
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label={isMenuOpen ? 'Uždaryti meniu' : 'Atidaryti meniu'}
-              >
-                {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
-              </button>
-            </div>
+            <button
+              type="button"
+              className={`lg:hidden flex-shrink-0 p-2 rounded-full transition-colors ml-auto lg:ml-0 lg:justify-self-end ${
+                onHero ? 'text-white hover:bg-white/10' : 'text-[#325b5d] hover:bg-[#e8eeec]'
+              }`}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? 'Uždaryti meniu' : 'Atidaryti meniu'}
+            >
+              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
       </div>
 
       {isMenuOpen && (
         <div
-          className={`lg:hidden border-b shadow-lg ${
-            onHero ? 'bg-[#1a3335]/95 backdrop-blur-md border-white/10' : 'bg-white border-[#325b5d]/10'
+          className={`lg:hidden border-b shadow-lg max-h-[calc(100dvh-4rem)] overflow-y-auto ${
+            onHero ? 'bg-[#1a3335] border-white/10' : 'bg-white border-[#325b5d]/10'
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 py-4 space-y-1">
