@@ -1,0 +1,9 @@
+# Client image without npm on the server (build on your PC first).
+# Usage:
+#   cd client && npm ci && npm run build && cd ..
+#   docker compose -f docker-compose.yml -f docker-compose.static-client.yml up -d --build
+
+services:
+  client:
+    build:
+      dockerfile: dockerfile.static

@@ -1,0 +1,17 @@
+# Use images built on your Mac (no npm on VPS).
+# Mac:
+#   docker build -f server/dockerfile -t nt-project-server:latest ./server
+#   docker build -f client/dockerfile -t nt-project-client:latest ./client
+#   docker save nt-project-server:latest nt-project-client:latest | gzip > /tmp/nt-images.tar.gz
+#   scp /tmp/nt-images.tar.gz root@YOUR_VPS:/tmp/
+# VPS:
+#   docker load < <(gunzip -c /tmp/nt-images.tar.gz)
+#   docker compose -f docker-compose.yml -f docker-compose.prebuilt.yml up -d --no-build
+
+services:
+  server:
+    image: nt-project-server:latest
+    build: null
+  client:
+    image: nt-project-client:latest
+    build: null
