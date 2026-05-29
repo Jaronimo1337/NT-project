@@ -1,16 +1,22 @@
-FROM node:20-alpine AS build
+FROM node:20-bookworm-slim AS build
 
 WORKDIR /app
 
+ARG NODE_ENV=development
+ARG NPM_CONFIG_PRODUCTION=false
+ENV NODE_ENV=$NODE_ENV
+ENV NPM_CONFIG_PRODUCTION=$NPM_CONFIG_PRODUCTION
+
 COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund \
+  && test -f node_modules/vite/package.json
+
 COPY . .
 
 ARG VITE_API_URL=
 ENV VITE_API_URL=$VITE_API_URL
-ENV NPM_CONFIG_PRODUCTION=false
-ENV NODE_ENV=development
 
-RUN npm install --no-audit --no-fund && npm run build
+RUN npm run build
 
 FROM nginx:alpine
 

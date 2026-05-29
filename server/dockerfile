@@ -3,14 +3,14 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund \
+  && test -f node_modules/express/package.json
+
 COPY . .
 
-ENV NPM_CONFIG_PRODUCTION=true
-ENV NODE_ENV=production
-
-RUN npm install --omit=dev --no-audit --no-fund
-
 RUN mkdir -p uploads/houses
+
+ENV NODE_ENV=production
 
 EXPOSE 3000
 
