@@ -1,9 +1,11 @@
-FROM node:20-alpine
+FROM node:20-bookworm-slim
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --no-audit --no-fund \
+
+# bookworm + npm install avoids alpine/npm ci "Exit handler never called" on some hosts
+RUN npm install --omit=dev --no-audit --no-fund \
   && test -f node_modules/express/package.json
 
 COPY . .
