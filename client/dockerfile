@@ -3,7 +3,8 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# Vite is a devDependency — must install dev packages for the build step
+RUN npm ci --include=dev
 
 COPY . .
 
