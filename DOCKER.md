@@ -81,3 +81,51 @@ npm run dev        # or npm run prod
 ```
 
 Do not run both at once (client uses 5174 vs 8080).
+
+---
+
+## VPS deploy (small server)
+
+Your `.env` must **not** set `NODE_ENV=production` during image build (it makes npm skip Vite). Runtime can use `production`.
+
+If `npm install` fails with `Exit handler never called` or `vite: not found`, the VPS is usually **out of RAM** during the client build.
+
+### Option A — build client on your computer (recommended)
+
+On your Mac/PC:
+
+```bash
+cd client
+npm ci
+npm run build
+cd ..
+git add client/dist   # only if you commit dist, OR rsync dist to the server
+```
+
+Copy `client/dist` to the server, then on the VPS:
+
+```bash
+cd ~/NT-project
+docker compose -f docker-compose.yml -f docker-compose.static-client.yml build client --no-cache
+docker compose build server --no-cache
+docker compose up -d
+```
+
+### Option B — build on VPS (needs ~2GB RAM or swap)
+
+```bash
+# Add 2GB swap once if the VPS has <2GB RAM
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
+
+git pull
+docker compose build --no-cache
+docker compose up -d
+```
+
+### If the server container exits
+
+```bash
+docker compose logs server --tail 80
+```
+
+Common fixes: check `DB_PASSWORD` in `.env` matches Postgres, and `JWT_SECRET` is set.
