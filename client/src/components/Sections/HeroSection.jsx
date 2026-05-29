@@ -12,46 +12,8 @@ const stats = [
 const HeroSection = ({ registerSection, scrollToSection }) => {
   const { t } = useSiteContent();
 
-  return (
-    <section
-      id="home"
-      ref={(el) => registerSection('home', el)}
-      className="page-section section-reveal relative w-full min-h-screen overflow-hidden"
-    >
-      <img
-        src={HERO_IMAGE}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover object-[72%_center] sm:object-[78%_center] brightness-[1.12] contrast-[1.03] saturate-[1.05]"
-        fetchPriority="high"
-        aria-hidden
-      />
-
-      {/* Desktop: one continuous overlay — no seam between solid and fade */}
-      <div
-        className="hidden md:block absolute inset-0 pointer-events-none"
-        style={{
-          background: `linear-gradient(to right,
-            rgba(26, 51, 53, 0.92) 0%,
-            rgba(26, 51, 53, 0.88) 30%,
-            rgba(26, 51, 53, 0.72) 38%,
-            rgba(26, 51, 53, 0.52) 46%,
-            rgba(26, 51, 53, 0.32) 54%,
-            rgba(26, 51, 53, 0.16) 62%,
-            rgba(26, 51, 53, 0.06) 70%,
-            transparent 80%
-          )`
-        }}
-        aria-hidden
-      />
-
-      {/* Mobile: fade up from bottom */}
-      <div
-        className="md:hidden absolute inset-0 bg-gradient-to-t from-[#1a3335]/88 from-30% via-[#1a3335]/45 via-50% to-transparent to-68%"
-        aria-hidden
-      />
-
-      <div className="relative z-10 min-h-screen flex items-center pt-20 pb-14 px-6 sm:px-8 md:pl-[11vw] lg:pl-[12vw] xl:pl-[13vw] md:pr-8">
-        <div className="w-full max-w-md lg:max-w-lg text-left">
+  const heroContent = (
+  <>
           <p className="text-[#c4a35a] text-xs font-semibold tracking-[0.18em] uppercase mb-4">
             {t('contact.location', 'Vilnius ir apylinkės')}
           </p>
@@ -90,7 +52,58 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
               </div>
             ))}
           </div>
+  </>
+  );
+
+  return (
+    <section
+      id="home"
+      ref={(el) => registerSection('home', el)}
+      className="page-section section-reveal relative w-full min-h-screen overflow-hidden"
+    >
+      {/* Desktop: full-bleed background + side gradient */}
+      <img
+        src={HERO_IMAGE}
+        alt=""
+        className="hidden md:block absolute inset-0 w-full h-full object-cover object-[78%_center] brightness-[1.12] contrast-[1.03] saturate-[1.05]"
+        fetchPriority="high"
+        aria-hidden
+      />
+      <div
+        className="hidden md:block absolute inset-0 pointer-events-none"
+        style={{
+          background: `linear-gradient(to right,
+            rgba(26, 51, 53, 0.92) 0%,
+            rgba(26, 51, 53, 0.88) 30%,
+            rgba(26, 51, 53, 0.72) 38%,
+            rgba(26, 51, 53, 0.52) 46%,
+            rgba(26, 51, 53, 0.32) 54%,
+            rgba(26, 51, 53, 0.16) 62%,
+            rgba(26, 51, 53, 0.06) 70%,
+            transparent 80%
+          )`
+        }}
+        aria-hidden
+      />
+
+      {/* Mobile: photo on top, text below (no text on face) */}
+      <div className="md:hidden flex flex-col min-h-screen">
+        <div className="relative w-full h-[44vh] min-h-[220px] max-h-[360px] flex-shrink-0">
+          <img
+            src={HERO_IMAGE}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover object-[70%_20%] brightness-[1.08]"
+            fetchPriority="high"
+          />
         </div>
+        <div className="flex-1 bg-[#1a3335] px-6 py-8">
+          <div className="w-full max-w-md text-left">{heroContent}</div>
+        </div>
+      </div>
+
+      {/* Desktop: text overlay */}
+      <div className="hidden md:flex relative z-10 min-h-screen items-center pt-20 pb-14 pl-[11vw] lg:pl-[12vw] xl:pl-[13vw] pr-8">
+        <div className="w-full max-w-md lg:max-w-lg text-left">{heroContent}</div>
       </div>
     </section>
   );

@@ -19,14 +19,14 @@ const AboutSection = ({ registerSection, scrollToSection }) => {
     >
       <div className="section-container w-full mobile-padding px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         <div className="flex flex-col lg:flex-row mobile-gap-6 gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
-          <div className="w-full lg:w-2/5 order-2 lg:order-1">
+          <div className="w-full lg:w-2/5 order-1">
             <div className="relative max-w-md mx-auto lg:max-w-none">
               <div className="w-full aspect-[4/3] sm:aspect-[3/2] lg:h-96 rounded-2xl overflow-hidden animate-fade-in shadow-xl bg-gradient-to-br from-[#e8eeec] via-[#f4f7f6] to-[#dce8e5] relative">
                 {aboutImageOk ? (
                   <img
                     src={ABOUT_IMAGE}
                     alt=""
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-top sm:object-center"
                     onError={() => setAboutImageOk(false)}
                   />
                 ) : (
@@ -42,7 +42,7 @@ const AboutSection = ({ registerSection, scrollToSection }) => {
             </div>
           </div>
           
-          <div className="w-full lg:w-3/5 order-1 lg:order-2">
+          <div className="w-full lg:w-3/5 order-2">
             <h2 className="text-responsive-3xl sm:text-responsive-4xl font-bold mb-4 sm:mb-6 animate-fade-in-up text-center lg:text-left text-[#1a3335]">
               {firstPart}{' '}
               <span className="text-[#325b5d]">{lastWord}</span>
