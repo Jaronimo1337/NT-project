@@ -3,9 +3,12 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
-
 COPY . .
+
+ENV NPM_CONFIG_PRODUCTION=false
+ENV NODE_ENV=development
+
+RUN npm install --no-audit --no-fund
 
 RUN mkdir -p uploads/houses
 
