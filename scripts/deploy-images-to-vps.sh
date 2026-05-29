@@ -5,14 +5,17 @@ VPS="${VPS:-root@173.212.242.113}"
 ARCHIVE="${ARCHIVE:-/tmp/nt-images.tar.gz}"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
+# VPS is linux/amd64; Mac Apple Silicon builds arm64 by default — must cross-build.
+PLATFORM="${PLATFORM:-linux/amd64}"
+
 if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
-  echo "==> Building images (Mac)..."
-  docker build -t nt-project-server:latest "$REPO_DIR/server"
-  docker build -t nt-project-client:latest "$REPO_DIR/client"
+  echo "==> Building images for $PLATFORM (Mac → VPS)..."
+  docker buildx build --platform "$PLATFORM" -t nt-project-server:latest --load "$REPO_DIR/server"
+  docker buildx build --platform "$PLATFORM" -t nt-project-client:latest --load "$REPO_DIR/client"
   echo "==> Saving to $ARCHIVE ..."
   docker save nt-project-server:latest nt-project-client:latest | gzip > "$ARCHIVE"
 else
-  echo "==> SKIP_BUILD=1 — using existing $ARCHIVE"
+  echo "==> SKIP_BUILD=1 — using existing $ARCHIVE (must already be $PLATFORM)"
 fi
 test -f "$ARCHIVE" || { echo "Missing $ARCHIVE"; exit 1; }
 echo "    $(ls -lh "$ARCHIVE" | awk '{print $5}')"
