@@ -7,8 +7,7 @@ const fs = require('fs');
 require('dotenv').config();
 
 const { testConnection, sequelize } = require('./config/database');
-const User = require('./models/User');
-require('./models/index'); // This will set up associations
+const { User } = require('./models');
 
 // Import routes
 const authRoutes = require('./routes/auth');

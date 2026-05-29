@@ -33,7 +33,7 @@ services:
       DB_USER: ${POSTGRES_USER:-postgres}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
       JWT_SECRET: ${JWT_SECRET:-local-dev-jwt-secret}
-      NODE_ENV: development
+      NODE_ENV: production
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
     depends_on:
@@ -45,15 +45,14 @@ services:
       test:
         [
           "CMD",
-          "wget",
-          "-q",
-          "--spider",
-          "http://127.0.0.1:3000/api/health"
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
         ]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 45s
 
   client:
     build:
@@ -61,6 +60,8 @@ services:
       dockerfile: dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-}
+        NODE_ENV: development
+        NPM_CONFIG_PRODUCTION: "false"
     container_name: broker_client
     ports:
       - "8080:80"
