@@ -35,9 +35,9 @@ const AboutSection = ({ registerSection, scrollToSection }) => {
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-4 sm:-bottom-6 lg:-bottom-8 -right-4 sm:-right-6 lg:-right-8 bg-[#325b5d] text-white mobile-p-4 p-4 sm:p-6 rounded-xl shadow-xl border border-[#c4a35a]/30">
+              <div className="absolute -bottom-4 sm:-bottom-6 lg:-bottom-8 -right-4 sm:-right-6 lg:-right-8 bg-[#325b5d] text-white mobile-p-4 p-4 sm:p-6 rounded-xl shadow-xl border border-blue-200/50">
                 <p className="text-responsive-2xl sm:text-responsive-3xl lg:text-4xl font-bold">{t('about.statNumber', '10+')}</p>
-                <p className="text-responsive-xs sm:text-sm uppercase tracking-wider text-[#c4a35a]">{t('about.statLabel', 'Metų patirties')}</p>
+                <p className="text-responsive-xs sm:text-sm uppercase tracking-wider text-blue-200">{t('about.statLabel', 'Metų patirties')}</p>
               </div>
             </div>
           </div>
@@ -47,7 +47,7 @@ const AboutSection = ({ registerSection, scrollToSection }) => {
               {firstPart}{' '}
               <span className="text-[#325b5d]">{lastWord}</span>
             </h2>
-            <div className="w-12 sm:w-16 h-1 bg-[#c4a35a] mb-6 sm:mb-8 animate-fade-in-up mx-auto lg:mx-0"></div>
+            <div className="w-12 sm:w-16 h-1 bg-blue-400 mb-6 sm:mb-8 animate-fade-in-up mx-auto lg:mx-0"></div>
             
             <p className="text-responsive-base sm:text-responsive-lg text-[#3d5a5c] mb-4 sm:mb-6 animate-fade-in-up leading-relaxed">
               {t('about.paragraph1', '')}
@@ -71,7 +71,7 @@ const AboutSection = ({ registerSection, scrollToSection }) => {
             <div className="text-center lg:text-left">
               <button
                 onClick={() => scrollToSection('contact')}
-                className="btn-responsive bg-[#325b5d] text-white px-6 sm:px-8 py-3 rounded-lg font-medium hover:bg-[#264648] transition-colors shadow-md flex items-center mx-auto lg:mx-0"
+                className="btn-responsive btn-brand px-6 sm:px-8 py-3 rounded-lg shadow-md flex items-center mx-auto lg:mx-0"
               >
                 {t('about.cta', 'Susisiekite')} <ArrowRight size={18} className="ml-2" />
               </button>

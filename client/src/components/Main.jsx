@@ -12,7 +12,7 @@ import Footer from "./Footer";
 import AnimationStyles from "./AnimationStyles";
 import { SiteContentProvider } from "../context/SiteContentContext";
 
-const NAV_OFFSET = 72;
+const NAV_OFFSET = 88;
 
 export default function BrokerPortfolio() {
   const [activeSection, setActiveSection] = useState("home");

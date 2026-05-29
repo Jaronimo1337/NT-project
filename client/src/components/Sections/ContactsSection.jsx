@@ -96,7 +96,7 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 animate-fade-in-up text-[#1a3335]">
             {t('contact.title', 'Susisiekite Su Manimi')}
           </h2>
-          <div className="w-12 sm:w-16 h-1 bg-[#c4a35a] mx-auto mb-3 animate-fade-in-up"></div>
+          <div className="w-12 sm:w-16 h-1 bg-blue-400 mx-auto mb-3 animate-fade-in-up"></div>
           <p className="text-sm sm:text-base text-[#3d5a5c] mb-4 animate-fade-in-up max-w-xl mx-auto">
             {t('contact.subtitle', '')}
           </p>
@@ -184,7 +184,7 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+                      className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="Jūsų vardas"
                       disabled={loading}
                     />
@@ -201,7 +201,7 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
-                      className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+                      className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="+370 XXX XXXXX"
                       disabled={loading}
                     />
@@ -218,7 +218,7 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="jusu@email.com"
                     disabled={loading}
                   />
@@ -233,7 +233,7 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
                     name="service"
                     value={formData.service}
                     onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     disabled={loading}
                   >
                     <option value="">Pasirinkite</option>
@@ -254,7 +254,7 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows="2"
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="Trumpai apie poreikius..."
                     disabled={loading}
                   ></textarea>
@@ -266,7 +266,7 @@ const ContactSection = ({ registerSection, scrollToSection }) => {
                   className={`w-full py-2 rounded font-medium transition-colors shadow-md text-sm ${
                     loading || !formData.name || !formData.phone
                       ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'btn-brand hover:opacity-95'
                   }`}
                 >
                   {loading ? (

@@ -5,7 +5,7 @@ import { useSiteContent } from '../../context/SiteContentContext';
 const AchievementCard = ({ icon, number, label, description, delay }) => {
   return (
     <div
-      className="bg-white text-gray-800 p-3 sm:p-4 rounded-xl shadow-lg animate-fade-in-up text-center"
+      className="bg-white text-gray-800 p-3 sm:p-4 rounded-xl shadow-lg animate-fade-in-up text-center border border-blue-100"
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="flex justify-center mb-2">
@@ -23,7 +23,7 @@ const AchievementCard = ({ icon, number, label, description, delay }) => {
 const ExperienceCard = ({ title, description, years, delay }) => {
   return (
     <div
-      className="bg-white text-gray-800 p-3 sm:p-4 rounded-xl shadow-lg animate-fade-in-up"
+      className="bg-white text-gray-800 p-3 sm:p-4 rounded-xl shadow-lg animate-fade-in-up border border-blue-100"
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="flex items-start">
@@ -96,18 +96,18 @@ const SuccessStoriesSection = ({ registerSection, scrollToSection }) => {
     <section
       id="testimonials"
       ref={(el) => registerSection('testimonials', el)}
-      className="page-section section-reveal h-screen w-full flex items-center bg-blue-600 text-white overflow-hidden"
+      className="page-section section-reveal h-screen w-full flex items-center bg-blue-50 text-gray-900 overflow-hidden"
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl mx-auto">
         <div className="text-center mb-4 sm:mb-6">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 animate-fade-in-up">
-            {firstPart} <span className="text-blue-200">{lastWord}</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 animate-fade-in-up text-gray-900">
+            {firstPart} <span className="text-blue-600">{lastWord}</span>
           </h2>
-          <div className="w-12 sm:w-16 h-1 bg-blue-200 mx-auto animate-fade-in-up"></div>
+          <div className="w-12 sm:w-16 h-1 bg-blue-400 mx-auto animate-fade-in-up"></div>
         </div>
 
         <div className="mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-center mb-3 sm:mb-4 text-blue-100">
+          <h3 className="text-lg sm:text-xl font-bold text-center mb-3 sm:mb-4 text-gray-700">
             {t('experience.achievementsHeading', 'Pasiekimai')}
           </h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-6xl mx-auto">
@@ -118,7 +118,7 @@ const SuccessStoriesSection = ({ registerSection, scrollToSection }) => {
         </div>
 
         <div className="mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-center mb-3 sm:mb-4 text-blue-100">
+          <h3 className="text-lg sm:text-xl font-bold text-center mb-3 sm:mb-4 text-gray-700">
             {t('experience.specializationsHeading', 'Specializacijos')}
           </h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 max-w-5xl mx-auto">
@@ -132,7 +132,7 @@ const SuccessStoriesSection = ({ registerSection, scrollToSection }) => {
           <button
             type="button"
             onClick={() => scrollToSection('contact')}
-            className="bg-white text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors shadow-md text-sm sm:text-base"
+            className="btn-brand px-6 sm:px-8 py-2 sm:py-3 rounded-lg shadow-md text-sm sm:text-base"
           >
             {t('experience.cta', 'Susisiekite su manimi')}
           </button>

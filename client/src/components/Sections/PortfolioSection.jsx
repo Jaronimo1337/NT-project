@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useSiteContent } from '../../context/SiteContentContext';
-import { PORTFOLIO_FILTERS } from '../../constants/listingCategories';
 import { API_URL } from '../../config/api';
 
 const HouseCard = ({ house, delay, index, onClick }) => {
@@ -95,8 +94,6 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [fetchAttempted, setFetchAttempted] = useState(false);
-  const [portfolioFilter, setPortfolioFilter] = useState('visi');
-
   // Touch handling for swipe
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
@@ -221,11 +218,10 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [modalOpen, showImageModal, showModal, currentImageIndex, selectedHouse]);
 
-  const fetchHouses = async (category = 'visi') => {
+  const fetchHouses = async () => {
     try {
       setLoading(true);
-      const params = category && category !== 'visi' ? `?category=${category}` : '';
-      const response = await fetch(`${API_URL}/api/houses${params}`);
+      const response = await fetch(`${API_URL}/api/houses`);
       const data = await response.json();
 
       if (data.success) {
@@ -240,8 +236,8 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
   };
 
   useEffect(() => {
-    fetchHouses(portfolioFilter);
-  }, [portfolioFilter]);
+    fetchHouses();
+  }, []);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('lt-LT', {
@@ -294,26 +290,10 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
           <h2 className="text-responsive-3xl sm:text-responsive-4xl font-bold mb-3 sm:mb-4 animate-fade-in-up text-[#1a3335]">
             {t('portfolio.title', 'Parduodami Projektai')}
           </h2>
-          <div className="w-12 sm:w-16 h-1 bg-[#c4a35a] mx-auto mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up"></div>
+          <div className="w-12 sm:w-16 h-1 bg-blue-400 mx-auto mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up"></div>
           <p className="text-responsive-base sm:text-responsive-lg text-[#3d5a5c] max-w-2xl mx-auto animate-fade-in-up leading-relaxed">
             {t('portfolio.subtitle', '')}
           </p>
-          <div className="flex flex-wrap justify-center gap-2 mt-6 sm:mt-8">
-            {PORTFOLIO_FILTERS.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                onClick={() => setPortfolioFilter(filter.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  portfolioFilter === filter.id
-                    ? 'bg-[#325b5d] text-white shadow-md'
-                    : 'bg-white text-[#3d5a5c] border border-[#325b5d]/20 hover:border-[#325b5d]/40'
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
         </div>
 
         {loading ? (
@@ -416,7 +396,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
                           type="button"
                           onClick={() => setCurrentImageIndex(index)}
                           className={`flex-shrink-0 rounded-lg overflow-hidden transition-all ${
-                            index === currentImageIndex ? 'ring-2 ring-[#c4a35a] opacity-100' : 'opacity-60 hover:opacity-90'
+                            index === currentImageIndex ? 'ring-2 ring-blue-400 opacity-100' : 'opacity-60 hover:opacity-90'
                           }`}
                         >
                           <img
@@ -516,7 +496,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
                   handleCloseModal();
                   scrollToSection('contact');
                 }}
-                className="flex-1 bg-[#325b5d] text-white py-3 px-6 rounded-lg hover:bg-[#264648] transition-colors font-medium text-sm"
+                className="flex-1 btn-brand py-3 px-6 rounded-lg font-medium text-sm"
               >
                 Susidomėjau
               </button>
@@ -526,7 +506,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
                   handleCloseModal();
                   scrollToSection('contact');
                 }}
-                className="flex-1 border border-[#325b5d]/30 text-[#325b5d] py-3 px-6 rounded-lg hover:bg-[#f4f7f6] transition-colors font-medium text-sm"
+                className="flex-1 btn-brand-outline py-3 px-6 rounded-lg font-medium text-sm"
               >
                 Susisiekti
               </button>

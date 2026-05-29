@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+:root {
+  --site-header-height: 5.5rem;
+  --brand-blue-light: #93c5fd;
+  --brand-blue-muted: #dbeafe;
+  --brand-blue: #2563eb;
+  --brand-blue-hover: #1d4ed8;
+  --brand-blue-dark: #1e40af;
+  --brand-blue-section: #eff6ff;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --site-header-height: 4.75rem;
+  }
+}
+
 html,
 body {
   margin: 0;
@@ -15,7 +31,7 @@ body {
 }
 
 .page-section {
-  scroll-margin-top: 4.75rem;
+  scroll-margin-top: var(--site-header-height);
 }
 
 /* Scroll reveal — sections slide up when they enter the scroll area */
@@ -168,10 +184,11 @@ body {
 
 @media (max-width: 640px) {
   .hero-container {
-    padding: 1rem 0.5rem;
-    min-height: 100vh;
+    padding: 1rem 0.5rem 1.5rem;
+    min-height: calc(100dvh - var(--site-header-height));
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: center;
   }
 }
 
@@ -312,6 +329,33 @@ body {
     padding: 0.6rem 1.6rem;
     font-size: 0.9rem;
   }
+}
+
+.btn-brand {
+  background-color: var(--brand-blue);
+  color: #fff;
+  font-weight: 500;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.btn-brand:hover:not(:disabled) {
+  background-color: var(--brand-blue-hover);
+}
+
+.btn-brand-outline {
+  background-color: #fff;
+  color: var(--brand-blue);
+  border: 1px solid var(--brand-blue);
+  font-weight: 500;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.btn-brand-outline:hover:not(:disabled) {
+  background-color: var(--brand-blue-section);
 }
 
 .responsive-image {

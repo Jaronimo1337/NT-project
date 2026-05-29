@@ -10,10 +10,10 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
     <section
       id="home"
       ref={(el) => registerSection('home', el)}
-      className="page-section section-reveal h-screen mobile-min-h-screen w-full snap-start flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 relative overflow-hidden"
+      className="page-section section-reveal min-h-[calc(100dvh-var(--site-header-height))] sm:min-h-screen w-full snap-start flex items-start sm:items-center bg-gradient-to-r from-blue-50 to-indigo-50 relative overflow-hidden pt-[var(--site-header-height)]"
     >
       <div className="absolute right-0 bottom-0 w-1/2 h-full bg-blue-600 clip-diagonal opacity-10" />
-      <div className="hero-container w-full mobile-padding px-4 sm:px-6 lg:px-8 xl:px-16 py-8 sm:py-12 lg:py-16 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 xl:gap-12 max-w-7xl mx-auto pt-20">
+      <div className="hero-container w-full mobile-padding px-4 sm:px-6 lg:px-8 xl:px-16 py-6 sm:py-12 lg:py-16 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 xl:gap-12 max-w-7xl mx-auto">
         <div className="w-full lg:w-3/5 mb-6 lg:mb-0 z-10 text-center lg:text-left">
           <div className="animate-fade-in-up">
             <h1 className="text-responsive-3xl sm:text-responsive-4xl font-bold mb-4 sm:mb-6 leading-tight text-gray-900">
@@ -30,7 +30,7 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
               <button
                 type="button"
                 onClick={() => scrollToSection('services')}
-                className="btn-responsive bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center"
+                className="btn-responsive btn-brand px-6 sm:px-8 py-3 rounded-lg shadow-md flex items-center justify-center"
               >
                 {t('hero.ctaServices', 'Paslaugos')}
                 <ArrowRight className="ml-2" size={18} />
@@ -38,7 +38,7 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
               <button
                 type="button"
                 onClick={() => scrollToSection('contact')}
-                className="btn-responsive bg-white text-blue-600 border border-blue-600 px-6 sm:px-8 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors flex items-center justify-center"
+                className="btn-responsive btn-brand-outline px-6 sm:px-8 py-3 rounded-lg flex items-center justify-center"
               >
                 {t('hero.ctaContact', 'Kontaktai')}
               </button>

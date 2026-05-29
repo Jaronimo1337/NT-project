@@ -28,11 +28,6 @@ export const LISTING_CATEGORIES = [
   }
 ];
 
-export const PORTFOLIO_FILTERS = [
-  { id: 'visi', label: 'Visi' },
-  ...LISTING_CATEGORIES.map(({ id, label }) => ({ id, label }))
-];
-
 export const getCategoryForHouseType = (houseType) => {
   if (houseType === 'butas') return 'butai';
   if (houseType === 'sklypas') return 'sklypai';

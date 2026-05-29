@@ -16,16 +16,16 @@ const Navigation = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen 
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm">
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 flex justify-between items-center min-h-16">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 flex justify-between items-center h-[var(--site-header-height)]">
         <button
           type="button"
           onClick={() => scrollToSection('home')}
-          className="flex items-center min-w-0 group"
+          className="flex items-center min-w-0 group h-full py-2"
         >
           <img
             src={SITE_LOGO}
             alt=""
-            className="w-16 sm:w-20 py-2 sm:py-3 object-contain flex-shrink-0"
+            className="h-11 w-auto max-h-full sm:h-12 object-contain flex-shrink-0"
           />
           <div className="hidden sm:block pl-2 text-left min-w-0 pt-1">
             <div className="font-semibold text-[#325b5d] text-sm lg:text-base leading-tight group-hover:text-[#1a3335] transition-colors">
@@ -47,8 +47,8 @@ const Navigation = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen 
                 onClick={() => scrollToSection(section.id)}
                 className={`text-sm font-semibold tracking-wide transition-colors duration-200 ${
                   isActive
-                    ? 'text-[#325b5d] border-b-2 border-[#325b5d] pb-1'
-                    : 'text-gray-600 hover:text-[#325b5d]'
+                    ? 'text-blue-600 border-b-2 border-blue-400 pb-1'
+                    : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
                 {t(section.labelKey, section.fallback)}
@@ -82,8 +82,8 @@ const Navigation = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen 
                   }}
                   className={`py-3 px-4 text-left font-medium tracking-wide transition-colors rounded-lg ${
                     isActive
-                      ? 'text-[#325b5d] bg-[#eef3f1] border-l-4 border-[#325b5d]'
-                      : 'text-gray-600 hover:text-[#325b5d] hover:bg-gray-50'
+                      ? 'text-blue-600 bg-blue-50 border-l-4 border-blue-400'
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
                   }`}
                 >
                   {t(section.labelKey, section.fallback)}

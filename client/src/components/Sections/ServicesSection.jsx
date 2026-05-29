@@ -13,7 +13,7 @@ const ServiceCard = ({ icon, title, description, delay, scrollToSection, ctaLabe
       <p className="text-responsive-sm sm:text-responsive-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">{description}</p>
       <button
         onClick={() => scrollToSection('contact')}
-        className="text-[#325b5d] font-medium flex items-center hover:text-[#c4a35a] transition-colors text-sm sm:text-base"
+        className="text-[#325b5d] font-medium flex items-center hover:text-blue-600 transition-colors text-sm sm:text-base"
       >
         {ctaLabel} <ArrowRight size={16} className="ml-2" />
       </button>
@@ -56,7 +56,7 @@ const ServicesSection = ({ registerSection, scrollToSection }) => {
           <h2 className="text-responsive-3xl sm:text-responsive-4xl font-bold mb-3 sm:mb-4 animate-fade-in-up text-[#1a3335]">
             <span className="text-[#325b5d]">{t('services.title', 'Paslaugos')}</span>
           </h2>
-          <div className="w-12 sm:w-16 h-1 bg-[#c4a35a] mx-auto mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up"></div>
+          <div className="w-12 sm:w-16 h-1 bg-blue-400 mx-auto mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up"></div>
           <p className="text-responsive-base sm:text-responsive-lg text-[#3d5a5c] mx-auto animate-fade-in-up max-w-3xl leading-relaxed">
             {t('services.subtitle', '')}
           </p>

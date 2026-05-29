@@ -5,7 +5,7 @@ const ScrollToTopButton = ({ activeSection, scrollToSection }) => {
   return (
     <button
       onClick={() => scrollToSection('home')}
-      className={`fixed bottom-8 right-8 z-40 p-2 bg-[#325b5d] text-white rounded-full shadow-lg transform transition-all duration-300 ${
+      className={`fixed bottom-8 right-8 z-40 p-2 btn-brand rounded-full shadow-lg transform transition-all duration-300 ${
         activeSection === 'home' ? 'opacity-0 scale-90' : 'opacity-100 scale-100 hover:scale-110'
       }`}
     >
