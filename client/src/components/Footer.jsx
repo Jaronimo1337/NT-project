@@ -1,7 +1,7 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { useSiteContent } from '../context/SiteContentContext';
-import { SITE_LOGO } from '../config/assets';
+import { FOOTER_PORTRAIT } from '../config/assets';
 
 const Footer = ({ scrollToSection, registerSection }) => {
   const { t } = useSiteContent();
@@ -45,8 +45,12 @@ const Footer = ({ scrollToSection, registerSection }) => {
               onClick={() => scrollToSection('home')}
               className="inline-flex items-center gap-3 mb-4 group"
             >
-              <div className="h-12 w-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center p-2 flex-shrink-0">
-                <img src={SITE_LOGO} alt="" className="h-full w-full object-contain" />
+              <div className="h-14 w-14 rounded-xl overflow-hidden border-2 border-[#c4a35a]/40 flex-shrink-0 shadow-md">
+                <img
+                  src={FOOTER_PORTRAIT}
+                  alt={t('nav.brandName', 'Lilija Eimontienė')}
+                  className="h-full w-full object-cover object-top"
+                />
               </div>
               <div className="text-left">
                 <h2 className="text-lg font-semibold text-white group-hover:text-[#c4a35a] transition-colors">
