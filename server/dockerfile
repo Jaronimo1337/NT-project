@@ -1,11 +1,13 @@
-FROM node:20-bookworm-slim
+FROM node:20-bookworm
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-# bookworm + npm install avoids alpine/npm ci "Exit handler never called" on some hosts
-RUN npm install --omit=dev --no-audit --no-fund \
+# Yarn avoids npm "Exit handler never called" on some VPS Docker builds
+RUN corepack enable \
+  && corepack prepare yarn@1.22.22 --activate \
+  && yarn install --production --non-interactive --network-timeout 600000 \
   && test -f node_modules/express/package.json
 
 COPY . .

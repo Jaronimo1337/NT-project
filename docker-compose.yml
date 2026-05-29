@@ -20,6 +20,7 @@ services:
     build:
       context: ./server
       dockerfile: dockerfile
+      network: host
     container_name: broker_server
     ports:
       - "3001:3000"
@@ -58,10 +59,9 @@ services:
     build:
       context: ./client
       dockerfile: dockerfile
+      network: host
       args:
         VITE_API_URL: ${VITE_API_URL:-}
-        NODE_ENV: development
-        NPM_CONFIG_PRODUCTION: "false"
     container_name: broker_client
     ports:
       - "8080:80"

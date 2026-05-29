@@ -1,14 +1,12 @@
-FROM node:20-bookworm-slim AS build
+FROM node:20-bookworm AS build
 
 WORKDIR /app
 
-ARG NODE_ENV=development
-ARG NPM_CONFIG_PRODUCTION=false
-ENV NODE_ENV=$NODE_ENV
-ENV NPM_CONFIG_PRODUCTION=$NPM_CONFIG_PRODUCTION
-
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund \
+
+RUN corepack enable \
+  && corepack prepare yarn@1.22.22 --activate \
+  && yarn install --non-interactive --network-timeout 600000 \
   && test -f node_modules/vite/package.json
 
 COPY . .
@@ -16,7 +14,7 @@ COPY . .
 ARG VITE_API_URL=
 ENV VITE_API_URL=$VITE_API_URL
 
-RUN npm run build
+RUN yarn build
 
 FROM nginx:alpine
 
