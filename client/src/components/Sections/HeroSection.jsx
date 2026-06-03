@@ -10,7 +10,7 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
     <section
       id="home"
       ref={(el) => registerSection('home', el)}
-      className="page-section section-reveal min-h-[calc(100dvh-var(--site-header-height))] sm:min-h-screen w-full snap-start flex items-start sm:items-center bg-gradient-to-r from-blue-50 to-indigo-50 relative overflow-hidden pt-[var(--site-header-height)]"
+      className="page-section section-reveal is-revealed min-h-[calc(100dvh-var(--site-header-height))] sm:min-h-screen w-full snap-start flex items-start sm:items-center bg-gradient-to-r from-blue-50 to-indigo-50 relative overflow-hidden pt-[var(--site-header-height)]"
     >
       <div className="absolute right-0 bottom-0 w-1/2 h-full bg-blue-600 clip-diagonal opacity-10" />
       <div className="hero-container w-full mobile-padding px-4 sm:px-6 lg:px-8 xl:px-16 py-6 sm:py-12 lg:py-16 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 xl:gap-12 max-w-7xl mx-auto">
@@ -20,11 +20,24 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
               {t('hero.title', 'Patikimas kelias į jūsų naujus namus')}
             </h1>
             <p className="text-responsive-base sm:text-responsive-lg text-gray-700 mb-6 sm:mb-8 leading-relaxed">
-              {t('hero.paragraph1', '')}
+              {t(
+                'hero.paragraph1',
+                '10+ metų patirties. Profesionalumas. Dėmesys žmogui. Puikiai išmanau statybų procesus. Būsto pardavimas ir pirkimas – sklandžiai, aiškiai, be streso.'
+              )}
               <br className="hidden sm:block" />
-              <span className="block mt-2">{t('hero.paragraph2', '')}</span>
+              <span className="block mt-2">
+                {t(
+                  'hero.paragraph2',
+                  'Dirbu sąžiningai, atsakingai, nuoširdžiai ir visada siekiu geriausio rezultato savo klientui.'
+                )}
+              </span>
               <br className="hidden sm:block" />
-              <span className="block mt-2">{t('hero.paragraph3', '')}</span>
+              <span className="block mt-2">
+                {t(
+                  'hero.paragraph3',
+                  'Ieškote patikimo partnerio nekilnojamojo turto klausimais? Kreipkitės – kartu tikrai rasime geriausią kelią.'
+                )}
+              </span>
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto lg:mx-0">
               <button
@@ -51,6 +64,8 @@ const HeroSection = ({ registerSection, scrollToSection }) => {
               src={HERO_IMAGE}
               alt="Lilija Eimontienė"
               className="w-full h-full object-cover object-[95%_center]"
+              loading="eager"
+              decoding="async"
               fetchPriority="high"
             />
           </div>

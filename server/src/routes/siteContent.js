@@ -15,7 +15,6 @@ const seedSiteContent = async () => {
 
 router.get('/', async (req, res) => {
   try {
-    await seedSiteContent();
     const rows = await SiteContent.findAll({ order: [['content_group', 'ASC'], ['key', 'ASC']] });
     const data = {};
     rows.forEach((row) => {
@@ -30,7 +29,6 @@ router.get('/', async (req, res) => {
 
 router.get('/admin', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    await seedSiteContent();
     const rows = await SiteContent.findAll({ order: [['content_group', 'ASC'], ['key', 'ASC']] });
     res.json({ success: true, data: rows });
   } catch (error) {
