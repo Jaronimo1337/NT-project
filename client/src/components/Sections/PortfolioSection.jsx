@@ -4,19 +4,18 @@ import { X } from 'lucide-react';
 import { useSiteContent } from '../../context/SiteContentContext';
 import { API_URL } from '../../config/api';
 
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='48' fill='%239ca3af'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E";
+
 const HouseCard = ({ house, delay, index, onClick }) => {
   const firstImage = house.images && house.images.length > 0 ? house.images[0] : null;
   const getImageUrl = (imageUrl) => {
-  if (!imageUrl) return `https://picsum.photos/600/400?random=${index}`;
-  
-  if (imageUrl.startsWith('http')) return imageUrl;
-  
-  if (imageUrl.startsWith('/')) return `${API_URL}${imageUrl}`;
-  
-  return `${API_URL}/uploads/houses/${imageUrl}`;
-};
+    if (!imageUrl) return PLACEHOLDER;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('/')) return `${API_URL}${imageUrl}`;
+    return `${API_URL}/uploads/houses/${imageUrl}`;
+  };
 
-const imageSrc = firstImage ? getImageUrl(firstImage.imageUrl) : `https://picsum.photos/600/400?random=${index}`;
+const imageSrc = firstImage ? getImageUrl(firstImage.imageUrl) : PLACEHOLDER;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('lt-LT', {
@@ -55,9 +54,7 @@ const imageSrc = firstImage ? getImageUrl(firstImage.imageUrl) : `https://picsum
         src={imageSrc}
         alt={house.title}
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        onError={(e) => {
-          e.target.src = `https://picsum.photos/600/400?random=${index}`;
-        }}
+        onError={(e) => { e.target.src = PLACEHOLDER; }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end mobile-p-4 p-4 sm:p-6 transition-opacity duration-300">
         <div className="mb-2 flex justify-between items-start">
@@ -365,6 +362,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
                       alt={selectedHouse.images[currentImageIndex]?.caption || selectedHouse.title}
                       className="w-full h-full object-cover cursor-zoom-in"
                       onClick={() => handleImageClick(selectedHouse.images[currentImageIndex], currentImageIndex)}
+                      onError={(e) => { e.target.src = PLACEHOLDER; }}
                     />
                     {selectedHouse.images.length > 1 && (
                       <>
@@ -541,10 +539,7 @@ const PortfolioSection = ({ registerSection, scrollToSection }) => {
               alt={selectedImage.caption || 'Namo nuotrauka'}
               className="max-w-full max-h-full object-contain cursor-default"
               onClick={(e) => e.stopPropagation()}
-              onError={(e) => {
-                console.error('Failed to load image:', selectedImage.imageUrl);
-                e.target.src = `https://picsum.photos/800/600?random=${currentImageIndex}`;
-              }}
+              onError={(e) => { e.target.src = PLACEHOLDER; }}
             />
             
             {/* Navigation arrows for full screen */}
