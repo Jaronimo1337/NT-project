@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:15-alpine
     container_name: broker_db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-broker_portfolio}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -22,6 +23,7 @@ services:
       dockerfile: dockerfile
       network: host
     container_name: broker_server
+    restart: unless-stopped
     ports:
       - "127.0.0.1:3001:3000"
     env_file:
@@ -63,6 +65,7 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL:-}
     container_name: broker_client
+    restart: unless-stopped
     ports:
       - "127.0.0.1:8080:80"
     depends_on:
