@@ -85,10 +85,13 @@ router.get('/', async (req, res) => {
         as: 'images',
         where: { isActive: true },
         required: false,
-        order: [['sortOrder', 'ASC']]
       }],
       where,
-      order: [['sortOrder', 'ASC'], ['createdAt', 'DESC']]
+      order: [
+        ['sortOrder', 'ASC'],
+        ['createdAt', 'DESC'],
+        [{ model: HouseImage, as: 'images' }, 'sortOrder', 'ASC']
+      ]
     });
 
     console.log(`✅ [${requestId}] Houses fetched: ${houses.length} houses`);
@@ -116,9 +119,12 @@ router.get('/all', authenticateToken, requireAdmin, async (req, res) => {
         model: HouseImage,
         as: 'images',
         required: false,
-        order: [['sortOrder', 'ASC']]
       }],
-      order: [['sortOrder', 'ASC'], ['createdAt', 'DESC']]
+      order: [
+        ['sortOrder', 'ASC'],
+        ['createdAt', 'DESC'],
+        [{ model: HouseImage, as: 'images' }, 'sortOrder', 'ASC']
+      ]
     });
 
     res.json({
@@ -144,8 +150,8 @@ router.get('/:id(\\d+)', async (req, res) => {
         as: 'images',
         where: { isActive: true },
         required: false,
-        order: [['sortOrder', 'ASC']]
-      }]
+      }],
+      order: [[{ model: HouseImage, as: 'images' }, 'sortOrder', 'ASC']]
     });
 
     if (!house) {
@@ -237,8 +243,8 @@ router.post('/', authenticateToken, requireAdmin, handleUpload, async (req, res)
         as: 'images',
         where: { isActive: true },
         required: false,
-        order: [['sortOrder', 'ASC']]
-      }]
+      }],
+      order: [[{ model: HouseImage, as: 'images' }, 'sortOrder', 'ASC']]
     });
 
     res.status(201).json({
@@ -335,8 +341,8 @@ router.put('/:id(\\d+)', authenticateToken, requireAdmin, handleUpload, async (r
         as: 'images',
         where: { isActive: true },
         required: false,
-        order: [['sortOrder', 'ASC']]
-      }]
+      }],
+      order: [[{ model: HouseImage, as: 'images' }, 'sortOrder', 'ASC']]
     });
     
     res.json({
@@ -428,8 +434,8 @@ router.put('/:id(\\d+)/images/reorder', authenticateToken, requireAdmin, async (
         as: 'images',
         where: { isActive: true },
         required: false,
-        order: [['sortOrder', 'ASC']]
-      }]
+      }],
+      order: [[{ model: HouseImage, as: 'images' }, 'sortOrder', 'ASC']]
     });
 
     res.json({
