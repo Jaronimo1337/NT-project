@@ -304,6 +304,9 @@ router.put('/:id(\\d+)', authenticateToken, requireAdmin, handleUpload, async (r
     if (req.body.houseType) updateData.houseType = req.body.houseType;
     if (req.body.status) updateData.status = req.body.status;
     if (req.body.description !== undefined) updateData.description = req.body.description;
+    if (req.body.location !== undefined) updateData.location = req.body.location;
+    if (req.body.features !== undefined) updateData.features = req.body.features;
+    if (req.body.isFeatured !== undefined) updateData.isFeatured = req.body.isFeatured === 'true';
     if (req.body.sortOrder !== undefined) updateData.sortOrder = parseInt(req.body.sortOrder);
     if (req.body.isActive !== undefined) updateData.isActive = req.body.isActive === 'true';
 

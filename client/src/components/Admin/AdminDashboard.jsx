@@ -72,7 +72,9 @@ const AdminDashboard = ({ onLogout }) => {
 
   const houses = useMemo(() => {
     const types = categoryConfig.types;
-    return allHouses.filter((h) => types.includes(h.houseType));
+    return allHouses
+      .filter((h) => types.includes(h.houseType))
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   }, [allHouses, categoryConfig.types]);
 
   const upsertHouseInList = useCallback((house) => {
@@ -307,6 +309,8 @@ const AdminDashboard = ({ onLogout }) => {
         'houseType',
         'status',
         'description',
+        'location',
+        'features',
         'sortOrder'
       ];
 
@@ -317,6 +321,7 @@ const AdminDashboard = ({ onLogout }) => {
         }
       });
       formDataToSend.set('houseType', formData.houseType || categoryConfig.defaultType);
+      formDataToSend.append('isFeatured', formData.isFeatured ? 'true' : 'false');
       
       // Add images if any
       if (imageFiles && imageFiles.length > 0) {
